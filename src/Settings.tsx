@@ -1,9 +1,5 @@
 import { useStore } from "./store";
 
-// ponytail: integrations are stubs — each needs OAuth credentials that can't ship in an APK.
-// Wire them through Supabase Edge Functions when accounts are ready.
-const integrations = ["Gmail", "Google Calendar", "GitHub", "Canvas", "Discord", "Claude Code"];
-
 export function Settings() {
   const { state, dispatch } = useStore();
 
@@ -20,7 +16,11 @@ export function Settings() {
           value={state.apiKey}
           onChange={(e) => dispatch({ type: "settings", patch: { apiKey: e.target.value } })}
         />
-        <p className="muted small">Stored only on this device. Powers briefings and the assistant.</p>
+        <p className="muted small">
+          {!state.apiKey && import.meta.env.VITE_ANTHROPIC_API_KEY
+            ? "Built-in key active. Paste your own to override."
+            : "Stored only on this device. Powers briefings and the assistant."}
+        </p>
       </section>
 
       <section className="card">
@@ -45,15 +45,6 @@ export function Settings() {
         />
       </section>
 
-      <section className="card">
-        <div className="card-label">Integrations</div>
-        {integrations.map((name) => (
-          <div key={name} className="task-row">
-            <span>{name}</span>
-            <span className="muted small">Coming soon</span>
-          </div>
-        ))}
-      </section>
     </div>
   );
 }

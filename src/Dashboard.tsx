@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { generateBriefing } from "./ai";
+import { apiKey, generateBriefing } from "./ai";
 import type { Quadrant } from "./store";
 import { useStore } from "./store";
 
@@ -20,7 +20,7 @@ export function Dashboard() {
   const revenue = state.finances.reduce((s, f) => s + f.amount, 0);
 
   async function refresh() {
-    if (!state.apiKey) {
+    if (!apiKey(state)) {
       setError("Add your Anthropic API key in Settings first.");
       return;
     }
@@ -31,7 +31,7 @@ export function Dashboard() {
       for (const p of b.priorities) {
         dispatch({ type: "update-task", id: p.id, patch: { quadrant: p.quadrant, why: p.why } });
       }
-      dispatch({ type: "set-briefing", briefing: { date: today, text: b.text, topAction: b.topAction } });
+      dispatch({ type: "set-briefing", briefing: { date: today, text: b.text, topAction: b.topAction, news: b.news } });
     } catch (e: any) {
       setError(e.message ?? "Briefing failed");
     } finally {
@@ -52,6 +52,12 @@ export function Dashboard() {
             <p>{state.briefing.text}</p>
             <div className="card-label" style={{ marginTop: 12 }}>Highest-ROI action</div>
             <p className="top-action">{state.briefing.topAction}</p>
+            {state.briefing.news && (
+              <>
+                <div className="card-label" style={{ marginTop: 12 }}>News for you</div>
+                <p>{state.briefing.news}</p>
+              </>
+            )}
           </>
         ) : (
           <p className="muted">No briefing for today yet.</p>

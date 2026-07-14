@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { chatWithSakai } from "./ai";
+import { apiKey, chatWithSakai } from "./ai";
 import { useStore } from "./store";
 
 // ponytail: Web Speech API (built into Android WebView/Chrome); swap for a native
@@ -46,7 +46,7 @@ export function Chat() {
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || busy) return;
-    if (!state.apiKey) {
+    if (!apiKey(state)) {
       dispatch({ type: "chat", msg: { role: "assistant", text: "Add your Anthropic API key in Settings first." } });
       return;
     }

@@ -9,22 +9,23 @@ npm install
 npm run dev
 ```
 
-Open Settings and paste your Anthropic API key (stored only on-device).
+Copy `.env.example` to `.env` and set `VITE_ANTHROPIC_API_KEY` (or paste a key in Settings — stored only on-device).
 
 ## Android APK
 
 ```
-npx cap add android   # first time only
 npm run android       # builds web, syncs, opens Android Studio
 ```
 
-Build > Build APK in Android Studio, install on device (optimized for Nothing Phone 3a).
+Build > Build APK in Android Studio, install on device (optimized for Nothing Phone 3a). The `android/` project is committed; build assets regenerate on sync.
 
 ## Features
 
 - **Today** — AI daily briefing, single highest-ROI action, tasks grouped by urgency/importance with reasons
 - **Tasks** — quick add with area + deadline; auto-prioritized
 - **Sakai** — chat/voice assistant (Claude tool-use) that updates tasks, finances, and goals from natural language
-- **Settings** — API key, model, interests, integrations (stubs)
+- **Connect** — GitHub coding activity, Canvas assignments + Google Calendar events imported as tasks (ICS feeds; sync fully works in the APK, browsers may block the feeds)
+- **News** — personalized 1-2 sentence brief inside the daily briefing (Claude web search)
+- **Settings** — API key, model, interests
 
 See `PIPELINE.md` for structure and roadmap.

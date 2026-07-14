@@ -3,13 +3,18 @@ import { autoQuadrant, uid } from "./store";
 
 const API = "https://api.anthropic.com/v1/messages";
 
+// Settings key wins; falls back to the key baked in at build time (.env)
+export function apiKey(state: State): string {
+  return state.apiKey || import.meta.env.VITE_ANTHROPIC_API_KEY || "";
+}
+
 // ponytail: BYOK direct-from-device calls; move behind a Supabase Edge Function when multi-user
 async function callClaude(state: State, body: object): Promise<any> {
   const res = await fetch(API, {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-api-key": state.apiKey,
+      "x-api-key": apiKey(state),
       "anthropic-version": "2023-06-01",
       "anthropic-dangerous-direct-browser-access": "true",
     },
@@ -32,19 +37,29 @@ function summarize(state: State): string {
 export interface BriefingResult {
   text: string;
   topAction: string;
+  news: string;
   priorities: { id: string; quadrant: Task["quadrant"]; why: string }[];
 }
 
 export async function generateBriefing(state: State): Promise<BriefingResult> {
   const data = await callClaude(state, {
+    max_tokens: 2048,
     system:
-      "You are Sakai, a personal chief of staff. Given the user's dashboard state, respond with ONLY JSON: " +
-      '{"briefing": "3-5 sentence daily briefing incl. a one-line personalized news-style insight", "topAction": "the single highest-ROI action right now", "priorities": [{"id": "taskId", "quadrant": "urgent-important|important|urgent|low", "why": "one sentence"}]}',
+      "You are Sakai, a personal chief of staff. Use web search once to find one genuinely useful news item for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
+      '{"briefing": "3-5 sentence daily briefing", "topAction": "the single highest-ROI action right now", "news": "1-2 sentence personalized news brief", "priorities": [{"id": "taskId", "quadrant": "urgent-important|important|urgent|low", "why": "one sentence"}]}',
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
     messages: [{ role: "user", content: summarize(state) }],
   });
-  const raw = data.content[0].text.replace(/```json|```/g, "").trim();
-  const j = JSON.parse(raw);
-  return { text: j.briefing, topAction: j.topAction, priorities: j.priorities ?? [] };
+  const texts = data.content.filter((c: any) => c.type === "text");
+  // strip web_search citation markup before parsing
+  const raw = texts
+    .map((t: any) => t.text)
+    .join("")
+    .replace(/<\/?cite[^>]*>/g, "")
+    .replace(/```json|```/g, "")
+    .trim();
+  const j = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+  return { text: j.briefing, topAction: j.topAction, news: j.news ?? "", priorities: j.priorities ?? [] };
 }
 
 const tools = [

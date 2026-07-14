@@ -3,10 +3,11 @@ import { Dashboard } from "./Dashboard";
 import { Tasks } from "./Tasks";
 import { Chat } from "./Chat";
 import { Settings } from "./Settings";
+import { Integrations } from "./Integrations";
 import { useStore } from "./store";
 import { updateDashboardNotification } from "./notify";
 
-const tabs = ["Today", "Tasks", "Sakai", "Settings"] as const;
+const tabs = ["Today", "Tasks", "Sakai", "Connect", "Settings"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
         {tab === "Today" && <Dashboard />}
         {tab === "Tasks" && <Tasks />}
         {tab === "Sakai" && <Chat />}
+        {tab === "Connect" && <Integrations />}
         {tab === "Settings" && <Settings />}
       </main>
       <nav className="nav">

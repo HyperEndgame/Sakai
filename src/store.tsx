@@ -13,6 +13,17 @@ export interface Task {
   why?: string; // AI explanation of priority
   done: boolean;
   createdAt: string;
+  source?: string; // "canvas" | "gcal" — set on imported tasks
+}
+
+export interface Integrations {
+  githubUser: string;
+  githubToken: string;
+  githubStatus: string;
+  canvasIcs: string;
+  canvasStatus: string;
+  gcalIcs: string;
+  gcalStatus: string;
 }
 
 export interface FinanceEntry {
@@ -38,6 +49,7 @@ export interface Briefing {
   date: string; // ISO date it was generated for
   text: string;
   topAction: string;
+  news?: string;
 }
 
 export interface State {
@@ -49,6 +61,7 @@ export interface State {
   interests: string;
   apiKey: string;
   model: string;
+  integrations: Integrations;
 }
 
 export type Action =
@@ -60,7 +73,8 @@ export type Action =
   | { type: "update-goal"; id: string; patch: Partial<Goal> }
   | { type: "chat"; msg: ChatMsg }
   | { type: "set-briefing"; briefing: Briefing }
-  | { type: "settings"; patch: Partial<Pick<State, "interests" | "apiKey" | "model">> };
+  | { type: "settings"; patch: Partial<Pick<State, "interests" | "apiKey" | "model">> }
+  | { type: "integrations"; patch: Partial<Integrations> };
 
 const KEY = "sakai-state-v1";
 
@@ -73,6 +87,15 @@ const initial: State = {
   interests: "",
   apiKey: "",
   model: "claude-haiku-4-5-20251001",
+  integrations: {
+    githubUser: "",
+    githubToken: "",
+    githubStatus: "",
+    canvasIcs: "",
+    canvasStatus: "",
+    gcalIcs: "",
+    gcalStatus: "",
+  },
 };
 
 function load(): State {
@@ -104,6 +127,8 @@ function reducer(s: State, a: Action): State {
       return { ...s, briefing: a.briefing };
     case "settings":
       return { ...s, ...a.patch };
+    case "integrations":
+      return { ...s, integrations: { ...s.integrations, ...a.patch } };
   }
 }
 
