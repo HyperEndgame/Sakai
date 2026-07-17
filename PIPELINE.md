@@ -33,3 +33,17 @@
   - Discord DMs: permanently blocked, reading DMs violates Discord ToS. Not a gap to close.
   - Claude Code desktop sync + full desktop app: explicitly phase 2 in the original spec, needs the Supabase backend deployed first as the sync layer.
 - Issues found: none yet.
+
+## v0.4 (2026-07-17)
+- Wired the Kotlin `DashboardService` for real: added `org.jetbrains.kotlin.android` to `android/build.gradle` + `android/app/build.gradle` (Kotlin wasn't configured at all before — `compileDebugKotlin` now runs as part of `assembleDebug`).
+- Rewrote `DashboardService.kt` to read a local snapshot (`SharedPreferences("sakai")` keys `dash_title`/`dash_body`) instead of polling Supabase — removes the hard dependency on an undeployed backend. Refreshes every 30s from the local snapshot; JS writes the snapshot on every state change.
+- New `DashboardBridge.kt`: minimal custom Capacitor plugin (`@CapacitorPlugin`) exposing `save({title, body})` — writes the SharedPreferences snapshot and starts the foreground service (`startForegroundService`, `START_STICKY`, survives the app being swiped away). Registered in `MainActivity.java` via `registerPlugin(DashboardBridge.class)`.
+- `src/notify.ts` now calls `DashboardBridge.save(...)` first, falling back to the old dismissible `LocalNotifications` entry only if the native plugin call throws (e.g. a stale build without `cap sync`).
+- Manifest: added `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_DATA_SYNC` permissions and `<service android:name=".DashboardService" foregroundServiceType="dataSync">`.
+- This closes the "persistent notification dashboard" requirement for real — it's now a true non-dismissible Android foreground service, not just a JS-driven notification that only updates while the app runs.
+- `DESKTOP.md`: architecture doc for the future desktop app + Claude Code sync, as the original spec literally asked ("create architecture that supports a future computer app") rather than a built app. Covers: Supabase as the shared sync layer (schema already exists in `supabase/migrations/0001_init.sql`, realtime already enabled on `tasks`/`briefings`), how a desktop client would reuse the same `ai.ts` tool-use contract, how Claude Code sync would push session summaries via a new `dev_sessions` table (schema included, not yet migrated), and the exact deploy path once someone actually stands up a Supabase project.
+- Still not done, and why:
+  - **Supabase not deployed** — needs a real Supabase project (URL + service key), which requires the user's own account; not something buildable without those credentials. `DESKTOP.md` has the exact deploy commands for when that's ready.
+  - **Discord DMs** — not a gap, a permanent no. Reading DMs outside Discord's official bot API (which can't read DM history without being a participant) violates Discord ToS.
+  - **Full desktop app** — the spec asked for architecture, not a build; `DESKTOP.md` is that architecture. Building the actual desktop client is real new scope (a whole second app), not something implied by "create architecture."
+- Issues found: none yet — `assembleDebug` confirmed `compileDebugKotlin` succeeds and the APK packages cleanly.

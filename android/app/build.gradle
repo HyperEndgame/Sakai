@@ -1,8 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace "com.hyperendgame.sakai"
     compileSdk rootProject.ext.compileSdkVersion
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     defaultConfig {
         applicationId "com.hyperendgame.sakai"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -40,6 +44,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.24"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 }
 
 apply from: 'capacitor.build.gradle'
