@@ -23,3 +23,13 @@
 - `supabase/` (edge functions + migration from parallel session) committed for the future Supabase move; not deployed.
 - Renamed `integrations.ts` → `sync.ts` (Windows case-collision with `Integrations.tsx` broke tsc).
 - Issues found: none yet.
+- Debug APK built locally via `gradlew assembleDebug` (JAVA_HOME/ANDROID_HOME pointed at Android Studio's bundled JBR + SDK) → `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+## v0.3 (2026-07-17)
+- Gmail integration (`src/gmail.ts`): client-side OAuth via Google Identity Services token client (gmail.readonly scope, no backend/refresh token needed — matches the BYOK pattern used for GitHub/Anthropic). User pastes a Google OAuth Client ID in the Connect tab (`gmailClientId` in `integrations` state); sync fetches last 3 days of messages, sends subject/from/snippet digest to Claude to extract real action items (skips newsletters/receipts), imports as tasks with `source: "gmail"`.
+- Not tested end-to-end — needs a real Google Cloud OAuth client ID from the user (Console → Credentials → OAuth client ID → Web application → add app origin, enable Gmail API). Code path verified via `tsc` typecheck + build only.
+- Remaining gaps, deliberately left as-is:
+  - Kotlin `DashboardService` (android-extras/) still not wired — Capacitor's ongoing notification (`src/notify.ts`) already covers the "persistent dashboard" requirement without needing Supabase deployed; wiring the Kotlin service is only worth it once multi-device sync is needed.
+  - Discord DMs: permanently blocked, reading DMs violates Discord ToS. Not a gap to close.
+  - Claude Code desktop sync + full desktop app: explicitly phase 2 in the original spec, needs the Supabase backend deployed first as the sync layer.
+- Issues found: none yet.

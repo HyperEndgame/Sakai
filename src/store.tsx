@@ -24,6 +24,9 @@ export interface Integrations {
   canvasStatus: string;
   gcalIcs: string;
   gcalStatus: string;
+  gmailClientId: string;
+  gmailToken: string; // access token, session-lived
+  gmailStatus: string;
 }
 
 export interface FinanceEntry {
@@ -95,6 +98,9 @@ const initial: State = {
     canvasStatus: "",
     gcalIcs: "",
     gcalStatus: "",
+    gmailClientId: "",
+    gmailToken: "",
+    gmailStatus: "",
   },
 };
 

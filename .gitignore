@@ -2,6 +2,8 @@ node_modules/
 dist/
 *.log
 .env
+.idea/
+android/.idea/
 
 # Android build outputs (project itself is committed)
 android/app/build/

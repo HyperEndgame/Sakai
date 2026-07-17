@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { syncCanvas, syncGcal, syncGithub } from "./sync";
+import { syncGmail } from "./gmail";
 import { useStore } from "./store";
 
 function Card(props: {
@@ -8,7 +9,7 @@ function Card(props: {
   status: string;
   canSync: boolean;
   onSync: () => Promise<string>;
-  statusKey: "githubStatus" | "canvasStatus" | "gcalStatus";
+  statusKey: "githubStatus" | "canvasStatus" | "gcalStatus" | "gmailStatus";
   children: React.ReactNode;
 }) {
   const { dispatch } = useStore();
@@ -82,9 +83,19 @@ export function Integrations() {
         <input className="input" placeholder="Secret iCal URL" value={i.gcalIcs} onChange={(e) => set({ gcalIcs: e.target.value })} />
       </Card>
 
+      <Card
+        title="Gmail"
+        desc="Scans recent emails for real deadlines and action items — skips newsletters and receipts. Needs a Google OAuth Client ID: Google Cloud Console → APIs & Services → Credentials → OAuth client ID (Web application), add this app's origin, enable the Gmail API."
+        status={i.gmailStatus}
+        canSync={!!i.gmailClientId}
+        statusKey="gmailStatus"
+        onSync={() => syncGmail(state, dispatch)}
+      >
+        <input className="input" placeholder="Google OAuth Client ID" value={i.gmailClientId} onChange={(e) => set({ gmailClientId: e.target.value })} />
+      </Card>
+
       <section className="card">
         <div className="card-label">Coming later</div>
-        <div className="task-row"><span>Gmail</span><span className="muted small">Needs Google OAuth app</span></div>
         <div className="task-row"><span>Claude Code</span><span className="muted small">Desktop sync, phase 2</span></div>
         <div className="task-row"><span>Discord DMs</span><span className="muted small">Blocked — reading DMs violates Discord ToS</span></div>
       </section>

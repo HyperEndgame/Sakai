@@ -24,7 +24,7 @@ Build > Build APK in Android Studio, install on device (optimized for Nothing Ph
 - **Today** — AI daily briefing, single highest-ROI action, tasks grouped by urgency/importance with reasons
 - **Tasks** — quick add with area + deadline; auto-prioritized
 - **Sakai** — chat/voice assistant (Claude tool-use) that updates tasks, finances, and goals from natural language
-- **Connect** — GitHub coding activity, Canvas assignments + Google Calendar events imported as tasks (ICS feeds; sync fully works in the APK, browsers may block the feeds)
+- **Connect** — GitHub coding activity, Canvas assignments + Google Calendar events imported as tasks (ICS feeds; sync fully works in the APK, browsers may block the feeds), Gmail action-item extraction (needs a Google OAuth Client ID, see in-app instructions)
 - **News** — personalized 1-2 sentence brief inside the daily briefing (Claude web search)
 - **Settings** — API key, model, interests
 
