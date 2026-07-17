@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Sakai</string>
-    <string name="title_activity_main">Sakai</string>
+    <string name="app_name">Rohtak</string>
+    <string name="title_activity_main">Rohtak</string>
     <string name="package_name">com.hyperendgame.sakai</string>
     <string name="custom_url_scheme">com.hyperendgame.sakai</string>
 </resources>

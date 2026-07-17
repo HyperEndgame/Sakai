@@ -22,7 +22,8 @@ interface IcsEvent {
 
 // ponytail: regex ICS parse covers SUMMARY/DTSTART/DUE; swap for ical.js if feeds get exotic
 export function parseIcs(text: string): IcsEvent[] {
-  const unfolded = text.replace(/\r?\n[ \t]/g, "");
+  // strip only the CRLF of a fold, keep the leading space/tab so wrapped words don't glue together
+  const unfolded = text.replace(/\r?\n(?=[ \t])/g, "");
   const events: IcsEvent[] = [];
   for (const block of unfolded.split("BEGIN:VEVENT").slice(1)) {
     const body = block.split("END:VEVENT")[0];

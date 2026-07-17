@@ -45,7 +45,7 @@ export async function generateBriefing(state: State): Promise<BriefingResult> {
   const data = await callClaude(state, {
     max_tokens: 2048,
     system:
-      "You are Sakai, a personal chief of staff. Use web search once to find one genuinely useful news item for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
+      "You are Rohtak, a personal chief of staff. Use web search once to find one genuinely useful news item for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
       '{"briefing": "3-5 sentence daily briefing", "topAction": "the single highest-ROI action right now", "news": "1-2 sentence personalized news brief", "priorities": [{"id": "taskId", "quadrant": "urgent-important|important|urgent|low", "why": "one sentence"}]}',
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
     messages: [{ role: "user", content: summarize(state) }],
@@ -136,14 +136,14 @@ function runTool(name: string, input: any, state: State, dispatch: (a: Action) =
   return "Unknown tool";
 }
 
-export async function chatWithSakai(
+export async function chatWithRohtak(
   state: State,
   dispatch: (a: Action) => void,
   userText: string,
 ): Promise<string> {
   const messages: any[] = [{ role: "user", content: `${summarize(state)}\n\nUser says: ${userText}` }];
   const system =
-    "You are Sakai, the user's personal chief of staff. When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. Reply concisely (1-3 sentences).";
+    "You are Rohtak, the user's personal chief of staff. When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. Reply concisely (1-3 sentences).";
   for (let i = 0; i < 4; i++) {
     const data = await callClaude(state, { system, messages, tools });
     if (data.stop_reason !== "tool_use") {

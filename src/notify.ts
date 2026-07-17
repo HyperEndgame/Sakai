@@ -22,11 +22,11 @@ export async function updateDashboardNotification(state: State) {
     .join("\n");
   const body = upcoming || "No upcoming deadlines";
   try {
-    await DashboardBridge.save({ title: `Sakai · ${top}`, body });
+    await DashboardBridge.save({ title: `Rohtak · ${top}`, body });
   } catch {
     // custom plugin unavailable (e.g. old build without cap sync) — fall back to a dismissible one
     await LocalNotifications.schedule({
-      notifications: [{ id: 1, title: `Sakai · ${top}`, body, ongoing: true, autoCancel: false }],
+      notifications: [{ id: 1, title: `Rohtak · ${top}`, body, ongoing: true, autoCancel: false }],
     });
   }
 }

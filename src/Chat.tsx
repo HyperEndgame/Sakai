@@ -1,36 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { apiKey, chatWithSakai } from "./ai";
+import { apiKey, chatWithRohtak } from "./ai";
 import { useStore } from "./store";
-
-// ponytail: Web Speech API (built into Android WebView/Chrome); swap for a native
-// speech plugin if recognition quality disappoints
-function useVoice(onText: (t: string) => void) {
-  const [listening, setListening] = useState(false);
-  const recRef = useRef<any>(null);
-
-  function toggle() {
-    const SR = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
-    if (!SR) {
-      alert("Voice input not supported on this device.");
-      return;
-    }
-    if (listening) {
-      recRef.current?.stop();
-      return;
-    }
-    const rec = new SR();
-    rec.lang = "en-US";
-    rec.interimResults = false;
-    rec.onresult = (e: any) => onText(e.results[0][0].transcript);
-    rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
-    recRef.current = rec;
-    rec.start();
-    setListening(true);
-  }
-
-  return { listening, toggle };
-}
+import { useVoice } from "./useVoice";
 
 export function Chat() {
   const { state, dispatch } = useStore();
@@ -54,7 +25,7 @@ export function Chat() {
     dispatch({ type: "chat", msg: { role: "user", text: msg } });
     setBusy(true);
     try {
-      const reply = await chatWithSakai(state, dispatch, msg);
+      const reply = await chatWithRohtak(state, dispatch, msg);
       dispatch({ type: "chat", msg: { role: "assistant", text: reply } });
     } catch (e: any) {
       dispatch({ type: "chat", msg: { role: "assistant", text: `Error: ${e.message}` } });
@@ -65,7 +36,7 @@ export function Chat() {
 
   return (
     <div className="page chat-page">
-      <h1>Sakai</h1>
+      <h1>Chat</h1>
       <div className="chat-log">
         {state.chat.length === 0 && (
           <p className="muted">

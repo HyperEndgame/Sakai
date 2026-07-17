@@ -55,6 +55,8 @@ export interface Briefing {
   news?: string;
 }
 
+export type Theme = "light" | "dark" | "system";
+
 export interface State {
   tasks: Task[];
   finances: FinanceEntry[];
@@ -65,6 +67,9 @@ export interface State {
   apiKey: string;
   model: string;
   integrations: Integrations;
+  name: string;
+  theme: Theme;
+  decorations: boolean;
 }
 
 export type Action =
@@ -76,7 +81,7 @@ export type Action =
   | { type: "update-goal"; id: string; patch: Partial<Goal> }
   | { type: "chat"; msg: ChatMsg }
   | { type: "set-briefing"; briefing: Briefing }
-  | { type: "settings"; patch: Partial<Pick<State, "interests" | "apiKey" | "model">> }
+  | { type: "settings"; patch: Partial<Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decorations">> }
   | { type: "integrations"; patch: Partial<Integrations> };
 
 const KEY = "sakai-state-v1";
@@ -90,6 +95,9 @@ const initial: State = {
   interests: "",
   apiKey: "",
   model: "claude-haiku-4-5-20251001",
+  name: "Hyper",
+  theme: "system",
+  decorations: true,
   integrations: {
     githubUser: "",
     githubToken: "",

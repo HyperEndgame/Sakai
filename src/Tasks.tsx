@@ -1,8 +1,15 @@
 import { useState } from "react";
-import type { Area } from "./store";
+import type { Area, Quadrant } from "./store";
 import { autoQuadrant, uid, useStore } from "./store";
 
 const areas: Area[] = ["school", "projects", "coding", "business", "fitness", "scouts", "personal"];
+
+const quadrants: { key: Quadrant; title: string; subtitle: string; dot: string }[] = [
+  { key: "urgent-important", title: "Do first", subtitle: "Urgent & important", dot: "dot-red" },
+  { key: "important", title: "Schedule", subtitle: "Important, not urgent", dot: "dot-green" },
+  { key: "urgent", title: "Delegate", subtitle: "Urgent, less important", dot: "dot-amber" },
+  { key: "low", title: "Later", subtitle: "Low priority", dot: "dot-gray" },
+];
 
 export function Tasks() {
   const { state, dispatch } = useStore();
@@ -34,6 +41,8 @@ export function Tasks() {
   return (
     <div className="page">
       <h1>Tasks</h1>
+      <p className="muted">Rohtak sorts everything by urgency and importance, and explains why.</p>
+
       <section className="card">
         <input
           className="input"
@@ -53,20 +62,34 @@ export function Tasks() {
         <button className="btn" onClick={add}>Add task</button>
       </section>
 
-      {open.map((t) => (
-        <div key={t.id} className="card task-row">
-          <label className="task-main">
-            <input type="checkbox" checked={false} onChange={() => dispatch({ type: "update-task", id: t.id, patch: { done: true } })} />
-            <div>
-              <div>{t.title}</div>
-              <div className="muted small">
-                {t.area}{t.due ? ` · due ${t.due}` : ""}
-              </div>
+      {quadrants.map((q) => {
+        const items = open.filter((t) => t.quadrant === q.key);
+        if (!items.length) return null;
+        return (
+          <div key={q.key}>
+            <div className="quadrant-heading">
+              <span className={`dot ${q.dot}`} />
+              <strong>{q.title}</strong>
+              <span className="muted small">· {q.subtitle}</span>
             </div>
-          </label>
-          <button className="ghost" onClick={() => dispatch({ type: "delete-task", id: t.id })}>✕</button>
-        </div>
-      ))}
+            {items.map((t) => (
+              <div key={t.id} className="card task-row">
+                <label className="task-main">
+                  <input type="checkbox" checked={false} onChange={() => dispatch({ type: "update-task", id: t.id, patch: { done: true } })} />
+                  <div>
+                    <div>{t.title}</div>
+                    <div className="muted small">
+                      {t.area}{t.due ? ` · due ${t.due}` : ""}
+                    </div>
+                    {t.why && <div className="why-pill">{t.why}</div>}
+                  </div>
+                </label>
+                <button className="ghost" onClick={() => dispatch({ type: "delete-task", id: t.id })}>✕</button>
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       {done.length > 0 && (
         <details>

@@ -46,9 +46,7 @@ export function Integrations() {
   const set = (patch: Partial<typeof i>) => dispatch({ type: "integrations", patch });
 
   return (
-    <div className="page">
-      <h1>Connect</h1>
-
+    <>
       <Card
         title="GitHub"
         desc="Tracks your coding activity — commits and active repos this week."
@@ -103,6 +101,6 @@ export function Integrations() {
       <p className="muted small">
         Calendar feeds may be blocked by the browser on web — they sync fine in the Android app.
       </p>
-    </div>
+    </>
   );
 }
