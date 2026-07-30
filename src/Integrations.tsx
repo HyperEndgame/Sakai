@@ -28,17 +28,25 @@ function Card(props: {
   }
 
   return (
-    <section className="card">
-      <div className="card-label">{props.title}</div>
-      <p className="muted small">{props.desc}</p>
+    <section className="space-y-2 rounded-2xl border border-border bg-card p-4">
+      <p className="text-xs font-medium text-muted-foreground">{props.title}</p>
+      <p className="text-xs text-muted-foreground">{props.desc}</p>
       {props.children}
-      <button className="btn" onClick={sync} disabled={busy || !props.canSync}>
+      <button
+        onClick={sync}
+        disabled={busy || !props.canSync}
+        className="w-full rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+      >
         {busy ? "Syncing…" : "Sync now"}
       </button>
-      {props.status && <p className={props.status.startsWith("Failed") ? "error" : "muted small"}>{props.status}</p>}
+      {props.status && (
+        <p className={props.status.startsWith("Failed") ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>{props.status}</p>
+      )}
     </section>
   );
 }
+
+const inputClass = "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none";
 
 export function Integrations() {
   const { state, dispatch } = useStore();
@@ -46,7 +54,7 @@ export function Integrations() {
   const set = (patch: Partial<typeof i>) => dispatch({ type: "integrations", patch });
 
   return (
-    <>
+    <div className="space-y-2">
       <Card
         title="GitHub"
         desc="Tracks your coding activity — commits and active repos this week."
@@ -55,8 +63,8 @@ export function Integrations() {
         statusKey="githubStatus"
         onSync={() => syncGithub(state)}
       >
-        <input className="input" placeholder="GitHub username" value={i.githubUser} onChange={(e) => set({ githubUser: e.target.value })} />
-        <input className="input" type="password" placeholder="Token (needed for private repos)" value={i.githubToken} onChange={(e) => set({ githubToken: e.target.value })} />
+        <input className={inputClass} placeholder="GitHub username" value={i.githubUser} onChange={(e) => set({ githubUser: e.target.value })} />
+        <input className={inputClass} type="password" placeholder="Token (needed for private repos)" value={i.githubToken} onChange={(e) => set({ githubToken: e.target.value })} />
       </Card>
 
       <Card
@@ -67,7 +75,7 @@ export function Integrations() {
         statusKey="canvasStatus"
         onSync={() => syncCanvas(state, dispatch)}
       >
-        <input className="input" placeholder="Canvas calendar feed URL (.ics)" value={i.canvasIcs} onChange={(e) => set({ canvasIcs: e.target.value })} />
+        <input className={inputClass} placeholder="Canvas calendar feed URL (.ics)" value={i.canvasIcs} onChange={(e) => set({ canvasIcs: e.target.value })} />
       </Card>
 
       <Card
@@ -78,7 +86,7 @@ export function Integrations() {
         statusKey="gcalStatus"
         onSync={() => syncGcal(state, dispatch)}
       >
-        <input className="input" placeholder="Secret iCal URL" value={i.gcalIcs} onChange={(e) => set({ gcalIcs: e.target.value })} />
+        <input className={inputClass} placeholder="Secret iCal URL" value={i.gcalIcs} onChange={(e) => set({ gcalIcs: e.target.value })} />
       </Card>
 
       <Card
@@ -89,18 +97,22 @@ export function Integrations() {
         statusKey="gmailStatus"
         onSync={() => syncGmail(state, dispatch)}
       >
-        <input className="input" placeholder="Google OAuth Client ID" value={i.gmailClientId} onChange={(e) => set({ gmailClientId: e.target.value })} />
+        <input className={inputClass} placeholder="Google OAuth Client ID" value={i.gmailClientId} onChange={(e) => set({ gmailClientId: e.target.value })} />
       </Card>
 
-      <section className="card">
-        <div className="card-label">Coming later</div>
-        <div className="task-row"><span>Claude Code</span><span className="muted small">Desktop sync, phase 2</span></div>
-        <div className="task-row"><span>Discord DMs</span><span className="muted small">Blocked — reading DMs violates Discord ToS</span></div>
+      <section className="space-y-1 rounded-2xl border border-border bg-card p-4">
+        <p className="text-xs font-medium text-muted-foreground">Coming later</p>
+        <div className="flex items-center justify-between text-sm">
+          <span>Claude Code</span>
+          <span className="text-xs text-muted-foreground">Desktop sync, phase 2</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Discord DMs</span>
+          <span className="text-xs text-muted-foreground">Blocked — reading DMs violates Discord ToS</span>
+        </div>
       </section>
 
-      <p className="muted small">
-        Calendar feeds may be blocked by the browser on web — they sync fine in the Android app.
-      </p>
-    </>
+      <p className="text-xs text-muted-foreground">Calendar feeds may be blocked by the browser on web — they sync fine in the Android app.</p>
+    </div>
   );
 }

@@ -1,19 +1,23 @@
-# Rohtak (formerly Sakai) — pipeline
+# Sakai (formerly Rohtak) — pipeline
 
 ## Structure
-- `src/store.tsx` — state (tasks/finances/goals/chat/briefing/settings/name/theme/decorations), reducer, localStorage persistence, rule-based quadrant fallback
-- `src/ai.ts` — Anthropic API calls: daily briefing (JSON), chat with tool-use (add_task, complete_task, log_finance, update_goal)
-- `src/theme.ts` — resolves light/dark/system, applies `data-theme` to `<html>`
-- `src/Header.tsx` + `src/Logo.tsx` + `src/icons.tsx` — shared top bar, minimal placeholder mark, inline SVG icon set
-- `src/Decorations.tsx` — ambient CherryBlossom (light) / Constellation (dark) overlays, toggled in Settings
-- `src/Dashboard.tsx` — Home tab: greeting, small next-task card, chat bar (primary input), daily briefing + integration chips
+- `src/store.tsx` — state (tasks/finances/goals/chat/briefing/settings/name/theme/decoration/notifications), reducer, localStorage persistence, rule-based quadrant fallback
+- `src/ai.ts` — Anthropic API calls: daily briefing (JSON, now incl. `stories`/`pattern`), chat with tool-use (add_task, complete_task, log_finance, update_goal)
+- `src/theme.ts` — resolves light/dark/system, toggles the `.dark` class + `color-scheme` on `<html>` (Tailwind v4 dark variant)
+- `src/styles.css` — Tailwind v4 entry (oklch design tokens, `@theme inline` mapping, petal/star keyframes, reduced-motion override)
+- `src/cn.ts` — `clsx` + `tailwind-merge` helper
+- `src/App.tsx` — app shell: header (brand mark + theme toggle), 5-tab bottom nav (lucide icons), renders `Decorations`
+- `src/Decorations.tsx` — ambient CherryBlossom (light) / Constellation (dark) / none overlays, 3-way switch on `state.decoration`
+- `src/Dashboard.tsx` — Home tab: greeting, next-task card, chat bar (primary input, `chatWithSakai` + `useVoice`), daily briefing + integration chips, `NewsFeed`
+- `src/NewsFeed.tsx` — "Your news" cards from `briefing.stories`, CSS gradient tile per category (no image assets)
 - `src/Tasks.tsx` — task CRUD, Eisenhower quadrant grouping with colored dots + why-pills
-- `src/Calendar.tsx` — agenda view of tasks with due dates
-- `src/Insights.tsx` — life-areas grid (derived from tasks/goals) + goals list + stats (moved off Home)
+- `src/Insights.tsx` — Daily brief (`briefing.stories`), life-areas grid (derived from tasks/goals) as progress bars, Pattern this week (`briefing.pattern`)
 - `src/Chat.tsx` + `src/useVoice.ts` — assistant chat + shared voice-input hook
-- `src/Settings.tsx` — Profile, Customization (theme + decorations), API key, model, interests, embedded Connect (Integrations) section
-- `src/notify.ts` — persistent Android notification (Kotlin foreground service via DashboardBridge plugin)
+- `src/Settings.tsx` — index (Appearance + 4 rows) + local-`useState` sub-pages: Customization (theme + 3 decoration previews), Notifications, Profile, Privacy & data (API key/model/interests + Integrations)
+- `src/Integrations.tsx` — Connect cards (GitHub/Canvas/GCal/Gmail), restyled to Tailwind, sync logic untouched
+- `src/notify.ts` — persistent Android notification (Kotlin foreground service via DashboardBridge plugin), gated on `state.notifications`
 - Capacitor wraps the Vite build into an Android APK (`npm run android`)
+- Deleted: `Calendar.tsx`, `icons.tsx`, `Logo.tsx`, `Header.tsx`, `app.css` (folded into `App.tsx` / `styles.css`)
 
 ## v0.1 (2026-07-13, one-shot per user request — no agent loop)
 - Plan: MVP of the /goal spec. Skipped: OAuth integrations (Gmail/Calendar/GitHub/Canvas/Discord — need real credentials), Supabase (localStorage until multi-device sync needed), Kotlin foreground service (Capacitor ongoing notification first), desktop app, external news API (briefing covers it).
@@ -85,3 +89,265 @@ Findings (all fixed):
 Rebuilt (`npm run build` + `assembleDebug`) clean after fixes.
 
 **Known pre-existing issue, not introduced this session**: `sync.ts`'s dev-mode `console.assert` self-check for `parseIcs` was already logging `"parseIcs broken"` in the console before this redesign touched anything (confirmed via `git diff` — `sync.ts` hasn't changed since v0.2). Not investigated further this pass; flagged for a future session.
+
+## v0.6 (2026-07-30) — Tailwind v4 UI overhaul, port Lovable mockup, rebrand to Sakai
+
+**Plan**: pre-written by the user as `UI_PLAN.md` (not opus this session — the plan was
+already settled, task was "follow it, don't redesign it"). Source of truth: Lovable mockup
+in `sakai example code/` (6 screen files + `decoration.tsx`/`news-feed.tsx`/`theme.tsx`/
+`mock-data.ts`/`styles.css` + 10 screenshots). Decisions locked in the plan: adopt Tailwind
+v4 + lucide-react (no Radix, no router — keep the `tab` useState), rebrand app name to
+Sakai (mockup's own copy still said "Rohtak" for the *user's* display name — that's
+`state.name`, left alone), delete `Calendar.tsx` (5 tabs not 6), `mock-data.ts` is shape
+reference only — every screen wires to real `useStore()`.
+
+**Built**:
+- Deps: `tailwindcss@4`, `@tailwindcss/vite`, `lucide-react`, `clsx`, `tailwind-merge`,
+  `tw-animate-css`. `vite.config.ts` gets the `tailwindcss()` plugin.
+- `src/styles.css` (new, replaces `app.css`): Tailwind v4 entry ported verbatim from the
+  mockup's tokens (oklch light/dark palette, `@theme inline` mapping, Fraunces/Inter font
+  vars, petal-fall/star-twinkle keyframes) with `@source "./"` so Tailwind scans `src/`
+  from its own directory. Added one line beyond the mockup: a `prefers-reduced-motion`
+  override that kills `.petal`/`.star` animation — `PRODUCT.md` requires a static fallback
+  and the Lovable source doesn't have one.
+- `src/theme.ts`: switched from `data-theme` attribute to toggling the `.dark` class +
+  `style.colorScheme` (Tailwind v4's dark variant is `&:is(.dark *)`). Kept the existing
+  3-way `light|dark|system` resolution — did not downgrade to the mockup's 2-way context.
+- `src/store.tsx`: `decorations: boolean` → `decoration: "none"|"cherry-blossom"|
+  "constellation"` (default `"cherry-blossom"`); added `notifications: boolean` (default
+  `true`); `Briefing` gained optional `stories?: Story[]` (exactly 3) and `pattern?: string`
+  so old persisted briefings without them still render.
+- `src/ai.ts`: `chatWithRohtak` → `chatWithSakai`, both system prompts now say Sakai (were
+  leaking "Rohtak" into replies). Briefing JSON extended with `stories` (3 news items:
+  category/title/source/time/summary) and `pattern` (one-line weekly observation) — same
+  single web-search call, two new consumers (Home + Insights), no second fetch.
+- Screens ported near-verbatim from the mockup JSX, `createFileRoute`/`Link`/`useNavigate`
+  stripped, `@/lib/mock-data` swapped for `useStore()`:
+  - `App.tsx` — folded `Header.tsx`+`Logo.tsx` in, 5-tab nav with lucide icons (deleted
+    `icons.tsx`), renders `Decorations` keyed on resolved theme + `state.decoration`.
+  - `Dashboard.tsx` — greeting uses `state.name`; next-task picks the highest-priority open
+    task by quadrant order (matches `briefing.topAction` first, falls back through
+    urgent-important → important → urgent → low); chat bar sends inline via `chatWithSakai`
+    + `useVoice` (kept the existing inline-reply UX rather than the mockup's "navigate to
+    /chat" — there's no router, and the existing behavior is strictly more useful); briefing
+    card + regex-derived source chips (Mail/Calendar/BookOpen/GitCommit icons) unchanged
+    logic, restyled.
+  - `NewsFeed.tsx` (new) — renders `briefing.stories`; `<img>` replaced with a
+    `bg-gradient-to-br` tile keyed on `category` (ai/tech/world/local + fallback), no binary
+    image assets ship. Renders nothing when `stories` is absent or the briefing is stale.
+  - `Tasks.tsx` — real tasks/quadrants/why-pills in the mockup's card style; kept the add-task
+    form and a delete button (mockup has neither, both load-bearing).
+  - `Chat.tsx` — `state.chat` + `chatWithSakai` + `useVoice`, kept the 4 suggestion chips.
+  - `Insights.tsx` — 3 sections per the mockup exactly: Daily brief (`briefing.stories`, tag/
+    title/summary card style — not the image-thumbnail style, that's Home-only), All life
+    areas (existing percent derivation from goals/tasks, restyled as progress bars, short
+    note per area), Pattern this week (`briefing.pattern`). Dropped the old standalone Goals
+    list and stats row — the plan's Insights spec only names these 3 sections and the
+    mockup doesn't have them; goal progress still feeds the areas grid.
+  - `Settings.tsx` — index (Appearance card + 4 rows) plus 4 sub-pages via local `useState`
+    (no router): Customization (3-way theme picker + the 3 decoration preview cards ported
+    exact from `_app.settings.customization.tsx`), Notifications (new toggle), Profile
+    (name), Privacy & data (API key/model/interests + `Integrations`).
+  - `Decorations.tsx` — 3-way switch (`none`/`cherry-blossom`+light/`constellation`+dark),
+    kept the existing seeded-PRNG layout and reduced-motion static fallback; restyled with
+    Tailwind classes matching the mockup's overlay structure.
+  - `Integrations.tsx` — restyled to Tailwind, sync logic (GitHub/Canvas/GCal/Gmail)
+    untouched.
+- Rebrand "Rohtak" → "Sakai" (app name only — `state.name`/greeting is unaffected):
+  `index.html` title + Google Fonts links, `capacitor.config.ts` appName, Android
+  `strings.xml` (app_name/title_activity_main), `notify.ts` notification title,
+  `DashboardService.kt` channel name + placeholder text.
+- Deleted: `Calendar.tsx`, `icons.tsx`, `Logo.tsx`, `Header.tsx`, `app.css`.
+- lucide-react 1.28 dropped brand icons (`Github` etc. no longer exported) — swapped for
+  `GitCommit` in the Dashboard's commit-count chip, no new dependency.
+
+**Verification**: `npm run build` (tsc + vite build) passes clean. Browser verification:
+Playwright's MCP server needs a system `google-chrome` binary this sandbox doesn't have and
+can't `apt install` (no sudo); worked around it by installing Playwright's bundled Chromium
+directly (`npx playwright install chromium`) and driving it with a throwaway
+`playwright-core` script (`/tmp/verify-ui.mjs`) — seeded `localStorage["sakai-state-v1"]`
+with representative tasks/briefing/integrations data, then screenshotted all 5 tabs in both
+light and dark mode at the screenshot viewport size (400×850 close to the reference
+599×1219). Confirmed against `Screenshot_20260730_092336.png` (dark Home) and
+`..._092359.png` (light Home): greeting/next-task/chat-bar/briefing/news-feed layout,
+spacing, and color tokens all match. Also drove into Settings → Customization (all 3
+decoration cards + active-state ring + "switch to X mode" hint), Settings → Privacy & data,
+and confirmed the constellation decoration renders full-page in dark mode. No console
+errors from app code (one transient `net::ERR` on the Google Fonts CDN request on one run,
+not reproduced on a second run — sandbox network flakiness, not app code; font stack falls
+back to `ui-serif, Georgia, serif` / `ui-sans-serif, system-ui` regardless).
+
+**Haiku review**: dispatched, scoped to what wasn't manually screenshotted — type parity
+between `Settings.tsx`'s `SettingsPatch` and the store's `Action["settings"]` variant,
+`ai.ts`'s new `stories`/`pattern` fields end-to-end into `Dashboard`/`Insights`, the
+`nextOpenTask` priority-order fallback logic, `App.tsx`'s notification-effect gating on
+`state.notifications`, and a repo-wide sweep for stale "Rohtak"/`decorations`/`data-theme`/
+`chatWithRohtak` references.
+
+Findings: build/types/wiring all confirmed clean (`Settings.tsx`'s `SettingsPatch` matches
+the store `Action`'s `"settings"` variant field-for-field; `stories`/`pattern` flow
+end-to-end from `ai.ts` → `Dashboard.refresh()` → `set-briefing` → `Insights`/`NewsFeed`
+with consistent `Story` typing; `nextOpenTask()`'s quadrant fallback order is correct;
+`App.tsx`'s notification effect gates on `state.notifications` with correct deps; no stale
+"Rohtak"/`decorations`/`data-theme`/`chatWithRohtak` references or dangling imports from
+deleted files anywhere in `src/`). One real visual bug from a separate review pass, fixed
+this version:
+
+- **Raw ISO dates instead of the mockup's short format** — `Dashboard.tsx`'s next-task chip
+  showed "DUE 2026-08-10" and `Tasks.tsx`'s task-card meta line showed "due 2026-08-10",
+  where the screenshots show "DUE AUG 10" / "Due Aug 10". Added `src/date.ts` —
+  `formatDue()`, a single function using `Intl`/`toLocaleDateString` (no date library).
+  It parses the stored `YYYY-MM-DD` via regex and reconstructs a **local**-midnight `Date`
+  (`new Date(y, m-1, d)`) rather than `new Date(due)`, which parses as UTC midnight and
+  rolls back a day in negative-UTC timezones — verified with a throwaway script under
+  `TZ=Pacific/Kiritimati` (+14) and `TZ=Etc/GMT+12` (-12), both render "Aug 10" for
+  `"2026-08-10"`. Falls back to the raw string (not "Invalid Date") on empty/unparseable
+  input. Has a `console.assert` dev-mode self-check (same pattern as `sync.ts`'s existing
+  `parseIcs` check) covering the good-date, bad-string, and empty-string cases. Wired into
+  both call sites; also capitalized `Tasks.tsx`'s "due" → "Due" to match the mockup.
+  Re-verified via the same `playwright-core` screenshot script — both tabs now read
+  "DUE AUG 10" / "Due Aug 10" / "Due Jul 30".
+
+## v0.7 (2026-07-30) — decoration fixes, canvas constellation, preview data, voice-only tasks
+
+**Plan**: pre-written by the user as `UI_PLAN_V2.md` (follow it, don't redesign). Four items:
+fix the cherry-blossom stuck-at-top bug (root cause already diagnosed in the plan), port the
+canvas constellation from `teambir/apps/web/components/sections/ConstellationBg.tsx`, add
+`src/samples.ts` preview data with a hard rule that samples are a render-time fallback only
+(never written to store/localStorage/`initial`), and strip manual task entry from
+`Tasks.tsx`.
+
+**Built**:
+- `src/Decorations.tsx` — `CherryBlossom`: `animationDelay` flipped to **negative**
+  (`-${p.delay}s`) so each petal starts mid-fall instead of sitting at its 0% keyframe
+  (`top:0`, `opacity:1`) until the delay elapses — that positive-delay bug was the entire
+  stuck-row-at-top symptom. Each petal also gets a new `--petal-y` inline custom property
+  (a seeded 0-90% vertical offset) so the `prefers-reduced-motion` fallback in `styles.css`
+  parks it scattered instead of collapsing back into the same stuck row (the old fallback
+  just set `animation:none` with no static position — reproduced the exact bug it was
+  supposed to work around).
+  `Constellation`: replaced the static SVG (22 fixed dots + nearest-neighbor lines) with a
+  canvas port of teambir's `ConstellationBg.tsx` — per-frame star drift, O(n²) link pass
+  between nearby stars, pointer-proximity glow, touch support. Changes from the source:
+  dropped `'use client'`; recolored via a new `--star-rgb` CSS custom property (see below)
+  read once via `getComputedStyle` instead of teambir's hardcoded gold `rgba(242,187,44,…)`
+  — canvas fill/stroke strings can't parse `oklch()` (old Android WebViews silently fail to
+  paint), so `--star-rgb` is a plain space-separated `R G B` triple, hand-converted from the
+  existing `--primary` oklch values via a throwaway oklch→sRGB script (Björn Ottosson's
+  formulas — no color library dependency): light `202 101 60`, dark `231 136 93`. Positioned
+  `pointer-events-none fixed inset-0 z-0` (same overlay contract as the old SVG version, not
+  teambir's `absolute inset-0`). Reduced-motion: checked once via `matchMedia`, draws a
+  single static frame (stars + links, no rAF loop, no pointer listeners) instead of animating
+  — the old CSS-only fallback doesn't reach into canvas. Capped at `MAX_STARS = 90` regardless
+  of viewport width (teambir *increases* density below 500px, the opposite of what a phone
+  needs) with a `ponytail:` comment naming the O(n²) ceiling and the spatial-grid upgrade path
+  if density/frame-rate needs ever grow. Kept teambir's full teardown (cancel rAF,
+  `ro.disconnect()`, remove all four window listeners) so toggling theme back and forth
+  doesn't leak a rAF loop.
+  Removed the now-dead `.star`/`@keyframes star-twinkle` CSS (only the deleted SVG version
+  used that class).
+- `src/styles.css` — added `--star-rgb` to `:root` and `.dark`; reduced-motion block for
+  `.petal` now sets `top: var(--petal-y, 40%)` alongside `animation: none` instead of just
+  killing the animation.
+- `src/samples.ts` (new) — preview-only content: `sampleBriefingText`, `samplePattern`,
+  `sampleStories: Story[]` (3 items), `sampleTasks: Task[]` (6 items, one per mockup
+  quadrant/area, ids prefixed `sample-` so nothing can collide with a real task id), and
+  `previewChipClass` (shared Tailwind classes for the small muted "Preview" badge). Uses the
+  real `Story`/`Task` types from `store.tsx`, not new shapes. **Never imported by
+  `store.tsx`** — it has zero write path into the reducer, `initial`, or `localStorage`;
+  every consumer is a component picking real-data-or-sample at render time.
+- `src/Dashboard.tsx` — briefing card and `NewsFeed` now compute `hasBriefing`/`hasStories`
+  (real, non-stale data present) and fall back to `sampleBriefingText`/`sampleStories` when
+  false, with a `Preview` chip next to "DAILY BRIEFING" / "YOUR NEWS" only in the fallback
+  case. Integration chips (emails/events/commits) were deliberately left alone — the plan's
+  table doesn't list them as a preview-sample row, so faking connected-integration counts
+  would risk exactly the "indistinguishable fake data" problem the Preview-chip rule exists
+  to prevent.
+- `src/NewsFeed.tsx` — `stories` prop is no longer optional/nullable (caller always supplies
+  either real or sample data); added an optional `preview` boolean that renders the chip.
+- `src/Insights.tsx` — same real-or-sample pattern for "Daily brief" (stories) and "Pattern
+  this week", each independently: a stale/empty briefing can still have no stories yet, and
+  vice versa, so the two chips can appear independently. Removed the `Generate a briefing on
+  Home…` placeholder text now that the pattern section always has content.
+- `src/Tasks.tsx` — deleted the add-task `<section>` (title input, area `<select>`, date
+  input, "Add task" button) and its backing `title`/`area`/`due` state, `add()`, and the
+  `autoQuadrant`/`uid`/`Plus`/`areas` imports — nothing else in the file used them. Kept the
+  done-toggle and delete buttons for real tasks. When `state.tasks.length === 0`, renders
+  `sampleTasks` instead with a `Preview` chip next to the "Tasks" heading; `TaskCard` now
+  takes optional `onDone`/`onDelete` — omitted for sample tasks, so they render with no
+  checkbox and no delete button (not just visually different — genuinely non-interactive,
+  since there's nothing wired to call). Empty state (zero real tasks) now reads "No tasks
+  yet — tell Sakai what's on your plate from the chat bar on Home" instead of a form.
+  Confirmed (didn't refactor) that voice-driven `complete_task` already works end-to-end:
+  `ai.ts`'s `summarize()` lists every open task as `- [id] title (...)`, so Claude has real
+  task ids to pass to the `complete_task` tool from a spoken/typed instruction.
+
+**Verification**: `npm run build` (tsc + vite build) passes clean — one real type error hit
+along the way (`ctx`/`canvas` narrowed to non-null at the top of the effect but TypeScript
+doesn't carry that narrowing into the nested `drawLinks`/`drawStars`/`drawFrame` function
+declarations that close over them; fixed by re-binding to new explicitly-typed consts
+immediately after the null checks).
+
+Browser-driven verification via a `playwright-core` script (`/tmp/verify-v07.mjs`), same
+approach as v0.6 (bundled Chromium, no system browser needed):
+- **Empty store, both themes, all 5 tabs** — screenshotted every combination; confirmed
+  against the two reference screenshots (`Screenshot_20260730_092336.png` dark Home,
+  `..._092359.png` light Home) — greeting/next-task/chat-bar/briefing/news layout and the
+  sample copy match verbatim (it's the same copy, ported into `samples.ts`). Two `Preview`
+  chips found on Home (briefing + news) as expected.
+- **Cherry blossom, t=0, animations paused** — injected a global
+  `* { animation-play-state: paused !important }` style, read all 14 `.petal` bounding
+  rects: only 1/14 within 5px of the top edge (that one's just a petal whose seeded
+  `top`/`delay` combination happens to paint near the top mid-fall — not a stuck cluster).
+  Confirms the old bug (all 14 stuck in a row at `top:0`) is gone.
+- **Cherry blossom, reduced motion emulated** (`newPage({ reducedMotion: "reduce" })`) — 0/14
+  petals at the top edge, scattered per their seeded `--petal-y`; screenshot shows a static
+  scattered field, not a row.
+- **Constellation, dark mode** — canvas renders a coral (not teambir gold) star field with
+  link lines; confirmed genuinely animating via a whole-canvas pixel checksum sampled 2s
+  apart across 3 samples (all three differ) — an earlier check that sampled only a 100-pixel
+  corner slice over 500ms gave a false "not animating" reading (that corner is often empty
+  and the drift per frame is sub-pixel over a short window), corrected by checksumming the
+  full canvas over a longer interval.
+- **Constellation, reduced motion emulated** — canvas checksum identical across two samples
+  2s apart → confirmed static, no rAF loop.
+- **Constellation, theme toggled dark→light→dark 3×** — no thrown errors, canvas remounts
+  and keeps animating cleanly after the toggles (proxy for "no leaked rAF loop": each mount
+  starts fresh and each unmount's cleanup cancels the previous frame/listeners since the
+  effect has an empty dependency array and a full teardown).
+- **Real data wins** — seeded `localStorage["sakai-state-v1"]` with a real task, a
+  non-stale briefing (real text/story/pattern), then re-rendered: Home shows the real
+  briefing text and real story title with **no** Preview chip; Tasks shows the real seeded
+  task (interactive checkbox visible) and confirmed the sample task title
+  ("Finish English essay draft") is **absent** with **no** Preview chip; Insights shows the
+  real pattern and story with **no** Preview chip. This is the correctness bar from the
+  task brief (samples must never look actionable or linger once real data exists) — verified
+  by string-matching the rendered page text for both presence of real content and absence of
+  sample content/chips, not just visual inspection.
+
+**Known, not investigated**: one `net::ERR`-style 404 was seen once during manual screenshot
+capture, not reproduced by a dedicated repeat-navigation check — consistent with the
+sandbox's Google Fonts CDN flakiness already noted in v0.6, not app code. `sync.ts`'s
+pre-existing `parseIcs` assert failure (noted in the task brief as out of scope) untouched.
+
+Not run this session: an Android APK rebuild (`assembleDebug`) — no code under `android/`
+changed, only `src/`, so the existing APK build path is unaffected; skipped rebuilding since
+nothing native-facing moved.
+
+**Post-review fix**: coordinator + haiku review caught a regression in `initStars` —
+stars were placed with uniform `Math.random()` x/y instead of teambir's grid-with-jitter
+distribution (`(col + 0.15 + Math.random()*0.7) / cols`), which is the defining visual trait
+of the animation being ported. Uniform random measured 116 links with 2 isolated stars and
+visible clumping/voids at 600×1100; restored the grid placement. Kept the `MAX_STARS` cap
+correct against it: capping `count` alone while still deriving `col`/`row` from the
+*uncapped* `cols` would leave empty rows once the cap actually binds, so now the grid
+dimensions themselves are shrunk before generating (`cols`/`rows` scaled down by
+`sqrt(MAX_STARS / (cols*rows))`, then `rows` hard-clamped to `floor(MAX_STARS / cols)` so
+`cols*rows` never exceeds the cap even after rounding) — every cell in the resulting grid
+gets exactly one jittered star, no partial last row. Left the reduced-motion early-return
+path untouched per the coordinator's explicit call (correct as written, not worth the
+churn). Re-verified at 600×1100 (the coordinator's own test viewport): grid stats now
+`cols:5, rows:9, count:45, links:80, isolated:0` — matches the "even mesh, no isolated
+stars" bar from teambir's original. `npm run build` re-run clean after the fix.
+
+Not committed/pushed per instruction — review happens first.

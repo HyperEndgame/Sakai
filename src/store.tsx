@@ -48,14 +48,25 @@ export interface ChatMsg {
   text: string;
 }
 
+export interface Story {
+  category: string;
+  title: string;
+  source: string;
+  time: string;
+  summary: string;
+}
+
 export interface Briefing {
   date: string; // ISO date it was generated for
   text: string;
   topAction: string;
   news?: string;
+  stories?: Story[]; // exactly 3, optional so old persisted briefings still render
+  pattern?: string;
 }
 
 export type Theme = "light" | "dark" | "system";
+export type Decoration = "none" | "cherry-blossom" | "constellation";
 
 export interface State {
   tasks: Task[];
@@ -69,7 +80,8 @@ export interface State {
   integrations: Integrations;
   name: string;
   theme: Theme;
-  decorations: boolean;
+  decoration: Decoration;
+  notifications: boolean;
 }
 
 export type Action =
@@ -81,7 +93,10 @@ export type Action =
   | { type: "update-goal"; id: string; patch: Partial<Goal> }
   | { type: "chat"; msg: ChatMsg }
   | { type: "set-briefing"; briefing: Briefing }
-  | { type: "settings"; patch: Partial<Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decorations">> }
+  | {
+      type: "settings";
+      patch: Partial<Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decoration" | "notifications">>;
+    }
   | { type: "integrations"; patch: Partial<Integrations> };
 
 const KEY = "sakai-state-v1";
@@ -97,7 +112,8 @@ const initial: State = {
   model: "claude-haiku-4-5-20251001",
   name: "Hyper",
   theme: "system",
-  decorations: true,
+  decoration: "cherry-blossom",
+  notifications: true,
   integrations: {
     githubUser: "",
     githubToken: "",

@@ -17,10 +17,10 @@ class DashboardService : Service() {
     override fun onCreate() {
         super.onCreate()
         val channel = NotificationChannel(
-            CHANNEL_ID, "Rohtak Dashboard", NotificationManager.IMPORTANCE_LOW
+            CHANNEL_ID, "Sakai Dashboard", NotificationManager.IMPORTANCE_LOW
         ).apply { setShowBadge(false) }
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-        startForeground(NOTIF_ID, build("Rohtak", "Loading your day…"))
+        startForeground(NOTIF_ID, build("Sakai", "Loading your day…"))
         scope.launch {
             while (isActive) {
                 refresh()

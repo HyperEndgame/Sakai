@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
+import { Home, MessageCircle, ListChecks, Sparkles, Settings as SettingsIcon, Sun, Moon } from "lucide-react";
 import { Dashboard } from "./Dashboard";
 import { Tasks } from "./Tasks";
 import { Chat } from "./Chat";
-import { Calendar } from "./Calendar";
 import { Insights } from "./Insights";
 import { Settings } from "./Settings";
-import { Header } from "./Header";
-import { CherryBlossom, Constellation } from "./Decorations";
-import { CalendarIcon, ChatIcon, HomeIcon, InsightsIcon, SettingsIcon, TasksIcon } from "./icons";
+import { Decorations } from "./Decorations";
 import { useStore } from "./store";
 import { useApplyTheme } from "./theme";
 import { updateDashboardNotification } from "./notify";
+import { cn } from "./cn";
 
 const tabs = [
-  { key: "Home", icon: HomeIcon },
-  { key: "Chat", icon: ChatIcon },
-  { key: "Tasks", icon: TasksIcon },
-  { key: "Calendar", icon: CalendarIcon },
-  { key: "Insights", icon: InsightsIcon },
-  { key: "Settings", icon: SettingsIcon },
+  { key: "Home", label: "Home", icon: Home },
+  { key: "Chat", label: "Chat", icon: MessageCircle },
+  { key: "Tasks", label: "Tasks", icon: ListChecks },
+  { key: "Insights", label: "Insights", icon: Sparkles },
+  { key: "Settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 type Tab = (typeof tabs)[number]["key"];
 
@@ -28,33 +26,64 @@ export default function App() {
   const effectiveTheme = useApplyTheme(state.theme);
 
   useEffect(() => {
+    if (!state.notifications) return;
     updateDashboardNotification(state).catch(() => {});
-  }, [state.tasks, state.briefing]);
+  }, [state.tasks, state.briefing, state.notifications]);
 
   function toggleTheme() {
     dispatch({ type: "settings", patch: { theme: effectiveTheme === "dark" ? "light" : "dark" } });
   }
 
   return (
-    <div className="app">
-      <Header theme={effectiveTheme} onToggleTheme={toggleTheme} />
-      {state.decorations && (effectiveTheme === "dark" ? <Constellation /> : <CherryBlossom />)}
-      <main className="main">
-        {tab === "Home" && <Dashboard onOpenTasks={() => setTab("Tasks")} />}
-        {tab === "Tasks" && <Tasks />}
-        {tab === "Chat" && <Chat />}
-        {tab === "Calendar" && <Calendar />}
-        {tab === "Insights" && <Insights />}
-        {tab === "Settings" && <Settings />}
-      </main>
-      <nav className="nav">
-        {tabs.map(({ key, icon: Icon }) => (
-          <button key={key} className={key === tab ? "nav-btn active" : "nav-btn"} onClick={() => setTab(key)}>
-            <Icon />
-            <span>{key}</span>
+    <div className="relative min-h-screen bg-background text-foreground">
+      <Decorations theme={effectiveTheme} decoration={state.decoration} />
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-xl flex-col">
+        <header className="flex items-center justify-between px-6 pt-6">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+            </div>
+            <span className="font-serif text-lg tracking-tight">Sakai</span>
+          </div>
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {effectiveTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-        ))}
-      </nav>
+        </header>
+
+        <main className="flex-1 px-6 pb-28 pt-6">
+          {tab === "Home" && <Dashboard onOpenTasks={() => setTab("Tasks")} />}
+          {tab === "Chat" && <Chat />}
+          {tab === "Tasks" && <Tasks />}
+          {tab === "Insights" && <Insights />}
+          {tab === "Settings" && <Settings effectiveTheme={effectiveTheme} onToggleTheme={toggleTheme} />}
+        </main>
+
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-lg">
+          <div className="mx-auto flex w-full max-w-xl items-center justify-around px-1 py-2">
+            {tabs.map(({ key, label, icon: Icon }) => {
+              const active = key === tab;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className={cn(
+                    "flex flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium transition-colors",
+                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon className={cn("h-5 w-5 transition-transform", active && "scale-110")} strokeWidth={active ? 2.4 : 1.8} />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="h-[env(safe-area-inset-bottom)]" />
+        </nav>
+      </div>
     </div>
   );
 }

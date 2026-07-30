@@ -1,4 +1,4 @@
-import type { Action, State, Task } from "./store";
+import type { Action, State, Story, Task } from "./store";
 import { autoQuadrant, uid } from "./store";
 
 const API = "https://api.anthropic.com/v1/messages";
@@ -38,6 +38,8 @@ export interface BriefingResult {
   text: string;
   topAction: string;
   news: string;
+  stories: Story[];
+  pattern: string;
   priorities: { id: string; quadrant: Task["quadrant"]; why: string }[];
 }
 
@@ -45,8 +47,12 @@ export async function generateBriefing(state: State): Promise<BriefingResult> {
   const data = await callClaude(state, {
     max_tokens: 2048,
     system:
-      "You are Rohtak, a personal chief of staff. Use web search once to find one genuinely useful news item for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
-      '{"briefing": "3-5 sentence daily briefing", "topAction": "the single highest-ROI action right now", "news": "1-2 sentence personalized news brief", "priorities": [{"id": "taskId", "quadrant": "urgent-important|important|urgent|low", "why": "one sentence"}]}',
+      "You are Sakai, a personal chief of staff. Use web search once to find 3 genuinely useful, distinct news items for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
+      '{"briefing": "3-5 sentence daily briefing", "topAction": "the single highest-ROI action right now", "news": "1-2 sentence personalized news brief", ' +
+      '"stories": [{"category": "short tag like AI/Tech/World/Local", "title": "headline", "source": "publication name", "time": "e.g. 2h ago", "summary": "1-2 sentences on why it matters to this user"}], ' +
+      '"pattern": "one sentence observation about the user\'s week (e.g. focus times, recurring blockers)", ' +
+      '"priorities": [{"id": "taskId", "quadrant": "urgent-important|important|urgent|low", "why": "one sentence"}]}. ' +
+      "stories must have exactly 3 items.",
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
     messages: [{ role: "user", content: summarize(state) }],
   });
@@ -59,7 +65,14 @@ export async function generateBriefing(state: State): Promise<BriefingResult> {
     .replace(/```json|```/g, "")
     .trim();
   const j = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
-  return { text: j.briefing, topAction: j.topAction, news: j.news ?? "", priorities: j.priorities ?? [] };
+  return {
+    text: j.briefing,
+    topAction: j.topAction,
+    news: j.news ?? "",
+    stories: j.stories ?? [],
+    pattern: j.pattern ?? "",
+    priorities: j.priorities ?? [],
+  };
 }
 
 const tools = [
@@ -136,14 +149,14 @@ function runTool(name: string, input: any, state: State, dispatch: (a: Action) =
   return "Unknown tool";
 }
 
-export async function chatWithRohtak(
+export async function chatWithSakai(
   state: State,
   dispatch: (a: Action) => void,
   userText: string,
 ): Promise<string> {
   const messages: any[] = [{ role: "user", content: `${summarize(state)}\n\nUser says: ${userText}` }];
   const system =
-    "You are Rohtak, the user's personal chief of staff. When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. Reply concisely (1-3 sentences).";
+    "You are Sakai, the user's personal chief of staff. When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. Reply concisely (1-3 sentences).";
   for (let i = 0; i < 4; i++) {
     const data = await callClaude(state, { system, messages, tools });
     if (data.stop_reason !== "tool_use") {

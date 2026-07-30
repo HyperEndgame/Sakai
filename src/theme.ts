@@ -9,7 +9,7 @@ function resolve(theme: Theme): "light" | "dark" {
   return theme === "system" ? (systemPrefersDark() ? "dark" : "light") : theme;
 }
 
-// Applies data-theme to <html> and tracks the resolved light/dark value, following
+// Toggles the .dark class + color-scheme on <html> and tracks the resolved light/dark value, following
 // the OS preference live while the user is on "system".
 export function useApplyTheme(theme: Theme): "light" | "dark" {
   const [effective, setEffective] = useState(() => resolve(theme));
@@ -24,7 +24,9 @@ export function useApplyTheme(theme: Theme): "light" | "dark" {
   }, [theme]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = effective;
+    const root = document.documentElement;
+    root.classList.toggle("dark", effective === "dark");
+    root.style.colorScheme = effective;
   }, [effective]);
 
   return effective;
