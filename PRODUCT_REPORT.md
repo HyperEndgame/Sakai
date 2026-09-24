@@ -1,4 +1,4 @@
-# Rohtak (formerly Sakai) — Product Report
+# Sakai — Product Report
 
 ## What it is
 
@@ -11,23 +11,22 @@ Local-first by design: state lives in `localStorage` on-device, zero backend
 required to run. Ships as a web app (Vite/React) and an Android APK (Capacitor),
 built for a single named device (Nothing Phone 3a).
 
-## Current capabilities (v0.5)
+## Current capabilities (v0.7)
 
 | Area | Capability |
 |---|---|
-| **Today (Home)** | Time-of-day greeting, next-task card, chat bar as primary input, AI daily briefing with integration status chips |
-| **Tasks** | Quick add with area + deadline; Eisenhower quadrant auto-sort (Do first / Schedule / Delegate / Later) with an AI-written "why" for each placement |
+| **Home** | Time-of-day greeting, next-task card, chat bar as primary input, AI daily briefing, news feed |
+| **Tasks** | Created via chat/voice only; Eisenhower quadrant auto-sort (Do first / Schedule / Delegate / Later) with an AI-written "why" for each placement |
 | **Chat/Voice** | Claude tool-use assistant (`add_task`, `complete_task`, `log_finance`, `update_goal`) driven by natural language or voice (Web Speech API) |
-| **Calendar** | Agenda view grouped by due date + overdue section |
-| **Insights** | Life-areas grid (school/projects/coding/finances/fitness/scouts), goals, stats |
+| **Insights** | Life-areas grid, weekly pattern, news stories, goals |
 | **Connect** | GitHub public activity, Canvas + Google Calendar via ICS import, Gmail action-item extraction (BYOK OAuth) — all deduplicated into tasks with a `source` tag |
-| **News** | 1–2 sentence personalized brief inside the daily briefing via Claude's web-search tool |
+| **News** | 3 personalized stories via Claude's web-search tool |
 | **Notifications** | Persistent, non-dismissible Android foreground service (native Kotlin plugin) showing the current dashboard state |
-| **Theming** | Light/dark/system, warm Claude-inspired palette, seasonal ambient decoration (cherry blossom / constellation) respecting `prefers-reduced-motion` |
+| **Theming** | Light/dark, cherry blossom (light) / canvas constellation (dark), respecting `prefers-reduced-motion`; preview data fills empty sections |
 | **Settings** | Profile, theme/decoration customization, BYOK Anthropic key + model choice, interests |
 
 Stack: React 18 + TypeScript + Vite, Capacitor 6 for Android, no state library
-(reducer + Context), no UI/icon library (hand-rolled SVG icon set), no backend
+(reducer + Context), Tailwind v4 + lucide-react, no backend
 in production yet.
 
 ## Design position
@@ -72,8 +71,6 @@ life," not "one team."
   real Google Cloud OAuth client ID from the user.
 - **Discord DMs**: permanently out of scope — reading DMs outside Discord's
   official bot API violates ToS.
-- **`parseIcs` self-check warning**: a pre-existing `console.assert` failure
-  in `sync.ts` (present since v0.2), not yet root-caused.
 
 ## Where this is headed
 

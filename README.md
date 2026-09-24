@@ -6,26 +6,27 @@ A mobile-first personal operating system: an AI-powered life dashboard that acts
 
 ```
 npm install
-npm run dev
+npm run dev          # http://localhost:5199
 ```
 
-Copy `.env.example` to `.env` and set `VITE_ANTHROPIC_API_KEY` (or paste a key in Settings — stored only on-device).
+Copy `.env.example` to `.env` and set `VITE_ANTHROPIC_API_KEY` (or paste a key in Settings — stored only on-device). The key's account needs API credit.
 
 ## Android APK
 
 ```
-npm run android       # builds web, syncs, opens Android Studio
+npm run android      # builds web, syncs, opens Android Studio
 ```
 
-Build > Build APK in Android Studio, install on device (optimized for Nothing Phone 3a). The `android/` project is committed; build assets regenerate on sync.
+In Android Studio: pick an emulator or USB device and press Run, or Build > Build APK(s). Output: `android/app/build/outputs/apk/debug/app-debug.apk`. Rebuild after any `src/` change — the APK bundles the web build.
 
-## Features
+## Tabs
 
-- **Today** — AI daily briefing, single highest-ROI action, tasks grouped by urgency/importance with reasons
-- **Tasks** — quick add with area + deadline; auto-prioritized
-- **Sakai** — chat/voice assistant (Claude tool-use) that updates tasks, finances, and goals from natural language
-- **Connect** — GitHub coding activity, Canvas assignments + Google Calendar events imported as tasks (ICS feeds; sync fully works in the APK, browsers may block the feeds), Gmail action-item extraction (needs a Google OAuth Client ID, see in-app instructions)
-- **News** — personalized 1-2 sentence brief inside the daily briefing (Claude web search)
-- **Settings** — API key, model, interests
+- **Home** — greeting, next task, chat/voice bar (primary input), AI daily briefing, news feed
+- **Chat** — full assistant history; Claude tool-use updates tasks, finances, and goals
+- **Tasks** — Eisenhower quadrants with an AI "why" per task; tasks are created through chat/voice
+- **Insights** — life-areas progress, weekly pattern, news stories, goals
+- **Settings** — profile, theme, API key, model, interests, Connect (GitHub, Canvas/Google Calendar ICS, Gmail)
 
-See `PIPELINE.md` for structure and roadmap.
+Empty sections show clearly labelled preview data until real data exists.
+
+See `PIPELINE.md` for structure and history.

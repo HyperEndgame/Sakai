@@ -20,7 +20,14 @@ async function callClaude(state: State, body: object): Promise<any> {
     },
     body: JSON.stringify({ model: state.model, max_tokens: 1024, ...body }),
   });
-  if (!res.ok) throw new Error(`Claude API ${res.status}: ${await res.text()}`);
+  if (!res.ok) {
+    const body = await res.text();
+    let msg = body;
+    try {
+      msg = JSON.parse(body).error.message;
+    } catch {}
+    throw new Error(`Claude API ${res.status}: ${msg}`);
+  }
   return res.json();
 }
 

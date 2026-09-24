@@ -14,7 +14,7 @@ now, and can I update the system without breaking my flow to do it.
 
 ## Product Purpose
 
-Rohtak (formerly Sakai) is an AI-powered personal chief of staff: a life dashboard that
+Sakai is an AI-powered personal chief of staff: a life dashboard that
 ingests school, work, coding, and personal signals (Gmail, Calendar, GitHub, Canvas) and
 turns them into a single prioritized view with an explanation for every priority. Chat is
 the primary input — natural language in, structured dashboard state out — not a bolted-on

@@ -351,3 +351,11 @@ churn). Re-verified at 600×1100 (the coordinator's own test viewport): grid sta
 stars" bar from teambir's original. `npm run build` re-run clean after the fix.
 
 Not committed/pushed per instruction — review happens first.
+
+## v0.7.1 (2026-09-23) — merge + housekeeping
+- Fast-forwarded `main` to `ui-overhaul` (7d90875) and pushed; `npm run build` + `assembleDebug` clean.
+- `parseIcs` "broken" notes above are stale: the self-check passes (verified by running the parser on its own sample). Nothing to fix.
+- `ai.ts` `callClaude`: API errors now show Anthropic's `error.message` instead of raw JSON.
+- Found: the `.env` Anthropic key's account has no credit ("credit balance is too low") — chat/briefing fail until topped up or a key is set in Settings. Error surfaces correctly in the UI.
+- No Android emulator installed: the SDK's `android-37.1` system image is only a partial download (`.installer`), and no AVD exists.
+- README/PRODUCT_REPORT/PRODUCT updated for Sakai v0.7.
