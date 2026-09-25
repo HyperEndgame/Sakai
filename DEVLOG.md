@@ -2,6 +2,13 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-25 · v0.8.2 — Phone build
+- "Your news" back to the original layout (image tile + summary box), by request.
+- **Android Back button** now steps back inside the app (settings subpage → Settings → Home, onboarding step → previous step) and only backgrounds the app at Home. Before, it closed the app from anywhere.
+- Phone APK is built **without** the `.env` key baked in, so the key you paste in Settings is the one used.
+- Verified on the Android 16 emulator: the key typed in Settings → AI & keys is sent to Anthropic (a dummy key gets "401: API key is invalid", so a real key works). Back-button chain checked.
+- APK published as a GitHub Release (private repo): **Releases → v0.8.2 → sakai-v0.8.2.apk**.
+
 ## 2026-09-25 · v0.8.1 — Polish pass
 **Fixed**
 - **Color bleeding**: removed the blurred see-through bottom nav (content smeared through it), the accent-tinted card gradients, and the onboarding footer fade. Surfaces are solid now.

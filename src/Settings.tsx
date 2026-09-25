@@ -11,6 +11,7 @@ import {
 } from "./fields";
 import { accents } from "./theme";
 import { cn } from "./cn";
+import { useBack } from "./back";
 
 type Page = "index" | "assistant" | "profile" | "life" | "rhythm" | "appearance" | "notifications" | "ai" | "connections" | "data";
 
@@ -21,6 +22,7 @@ export function Settings({ effectiveTheme }: { effectiveTheme: "light" | "dark" 
   const [page, setPage] = useState<Page>("index");
   const { state } = useStore();
   const back = () => setPage("index");
+  useBack(page !== "index", back);
   const a = state.assistant;
   const p = state.profile;
   const connected = [state.integrations.githubUser, state.integrations.canvasIcs, state.integrations.gcalIcs, state.integrations.gmailClientId].filter(Boolean).length;

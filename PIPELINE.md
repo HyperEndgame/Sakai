@@ -386,3 +386,8 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 - SDK 35 (`variables.gradle`, `suppressUnsupportedCompileSdk=35`, `values-v35/styles.xml` edge-to-edge opt-out). Targeting 36 later needs inset padding instead of the opt-out.
 - FGS `dataSync` → `specialUse` (6h/day cap on API 35).
 - Onboarding: single Skip under Continue; default decoration `none`. `UI_PLAN*.md` → `archive/`.
+
+## v0.8.2 (2026-09-25) — phone build (small; no haiku)
+- `NewsFeed.tsx` restored to e3b4d92 layout (user preference).
+- `src/back.ts`: global back-handler stack exposed as `window.sakaiBack()`; `useBack(active, fn)` used by App (tab→Home), Settings (subpage→index), Onboarding (step→prev). `MainActivity` OnBackPressedCallback evaluates it, else `moveTaskToBack`.
+- Release APK built with `VITE_ANTHROPIC_API_KEY=` so no key ships in the bundle (verified: 0 `sk-ant-api` matches in APK assets). Settings key path verified end-to-end on API 36 (401 invalid key for dummy).

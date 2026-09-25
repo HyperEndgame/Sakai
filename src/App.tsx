@@ -9,6 +9,7 @@ import { Decorations } from "./Decorations";
 import { useStore } from "./store";
 import { useApplyAccent, useApplyTheme } from "./theme";
 import { Onboarding } from "./Onboarding";
+import { useBack } from "./back";
 import { updateDashboardNotification } from "./notify";
 import { cn } from "./cn";
 
@@ -24,6 +25,7 @@ type Tab = (typeof tabs)[number]["key"];
 export default function App() {
   const [tab, setTab] = useState<Tab>("Home");
   useEffect(() => window.scrollTo(0, 0), [tab]);
+  useBack(tab !== "Home", () => setTab("Home"));
   const { state, dispatch } = useStore();
   const effectiveTheme = useApplyTheme(state.theme);
   useApplyAccent(state.assistant.accent, effectiveTheme);

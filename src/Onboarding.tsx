@@ -4,6 +4,7 @@ import { ArrowRight, ChevronLeft } from "lucide-react";
 import { useStore } from "./store";
 import { AccentPicker, AreaChips, Field, GoalsEditor, Segmented, inputClass, toneOptions } from "./fields";
 import { cn } from "./cn";
+import { useBack } from "./back";
 
 const steps = ["welcome", "assistant", "you", "focus", "connect", "done"] as const;
 
@@ -56,6 +57,7 @@ export function Onboarding() {
   const setP = (patch: Partial<typeof p>) => dispatch({ type: "profile", patch });
   const finish = () => dispatch({ type: "settings", patch: { onboarded: true } });
   const next = () => (i === steps.length - 1 ? finish() : setI(i + 1));
+  useBack(i > 0, () => setI(i - 1));
 
   return (
     <div className="flex min-h-screen flex-col px-6 pt-6">
