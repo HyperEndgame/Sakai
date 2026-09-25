@@ -360,3 +360,20 @@ Not committed/pushed per instruction — review happens first.
 - No Android emulator installed: the SDK's `android-37.1` system image is only a partial download (`.installer`), and no AVD exists.
 - README/PRODUCT_REPORT/PRODUCT updated for Sakai v0.7.
 - Emulator set up (2026-09-25): `android-35/google_apis/x86_64` image + AVD `Sakai_Pixel` (1080x2400). APK installs and runs; all 5 tabs + dark mode render; `DashboardService` stays foreground after `am kill` and shows "Sakai · All clear". Notification appears up to 30s after granting permission (next refresh tick). Launch: `emulator -avd Sakai_Pixel`.
+
+## v0.8 (2026-09-25) — onboarding + full settings
+**Plan (Opus)**:
+- State: `onboarded`, `assistant {name, accent, tone, length, instructions}`, `profile {org, role, timezone, wake, sleep, about, areas[]}`; `load()` deep-merges nested defaults so old saves keep working. New actions: `delete-goal`, `reset`.
+- `fields.tsx`: shared controls (Field, TextInput, Segmented, AccentPicker, AreaChips, GoalsEditor, Toggle) used by BOTH onboarding and settings — one control vocabulary.
+- `Onboarding.tsx`: 6 steps — Welcome (code-built mark animation: ring draws, dot lands, stars link; no Lottie dep) → Assistant (name, accent, tone) → You (name, school/work, role, timezone, rhythm) → Focus (areas, goals, interests) → Connect (optional API key + GitHub/Canvas/GCal) → Done. Skip always visible; Back/Continue; progress bar; defaults so Continue never blocks.
+- Accent: `useApplyAccent` in `theme.ts` overrides `--primary/--ring/--star-rgb` per theme; coral = stylesheet default.
+- `ai.ts`: `persona(state)` builds the system prompt from assistant name/tone/length/instructions; `summarize` adds profile. App wordmark stays "Sakai"; assistant name shows in Chat/placeholder/notification.
+- Settings index regrouped: Assistant · Profile · Life & goals · Daily rhythm · Appearance · Notifications · AI & keys · Connections · Data (export JSON, replay welcome, erase all).
+- Docs: DEVLOG.md (new) + README each iteration.
+
+**Built**: `fields.tsx` (shared controls), `Onboarding.tsx` (6 steps + `Mark` SVG animation, keyframes in `styles.css`, reduced-motion static), `Settings.tsx` rebuilt (9 subpages), `theme.ts` `accents` + `useApplyAccent` (useLayoutEffect so vars land before the canvas reads `--star-rgb`; `Decorations` keyed on accent to recolor), `ai.ts` `persona()` + profile in `summarize()`, assistant name in Chat/Tasks copy, Insights grid filtered by `profile.areas`, DEVLOG.md added.
+**Verified**: browser (mobile viewport) full click-through; Android 16 emulator (`Sakai_A16`, API 36): all 6 onboarding steps, Settings index + Assistant page, Plum accent + dark mode across Settings/Home/Insights, state persists after force-stop.
+**Haiku review**:
+1. `persona()` produced "You are Sakai, 's personal chief of staff" when name empty → fixed (falls back to "the user's").
+Everything else clean (load deep-merge, hook order, accent/layout-effect ordering, export strips keys, two-tap erase, GoalsEditor empty-areas default).
+- Haiku re-review after fix: no breaking issues. Loop closed.

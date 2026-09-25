@@ -26,7 +26,7 @@ export function Tasks() {
           <h1 className="font-serif text-4xl leading-tight tracking-tight">Tasks</h1>
           {!hasTasks && <span className={previewChipClass}>Preview</span>}
         </div>
-        <p className="text-sm text-muted-foreground">Sakai sorts everything by urgency and importance, and explains why.</p>
+        <p className="text-sm text-muted-foreground">{state.assistant.name || "Sakai"} sorts everything by urgency and importance, and explains why.</p>
       </header>
 
       {order.map((q) => {
@@ -55,7 +55,7 @@ export function Tasks() {
       })}
 
       {!hasTasks && (
-        <p className="text-sm text-muted-foreground">No tasks yet — tell Sakai what's on your plate from the chat bar on Home.</p>
+        <p className="text-sm text-muted-foreground">No tasks yet — tell {state.assistant.name || "Sakai"} what's on your plate from the chat bar on Home.</p>
       )}
 
       {done.length > 0 && (

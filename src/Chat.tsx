@@ -48,7 +48,7 @@ export function Chat() {
     <div className="flex min-h-[calc(100vh-11rem)] flex-col">
       <header className="space-y-1 pb-4">
         <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Assistant</p>
-        <h1 className="font-serif text-3xl tracking-tight">Talk to Sakai</h1>
+        <h1 className="font-serif text-3xl tracking-tight">Talk to {state.assistant.name || "Sakai"}</h1>
       </header>
 
       <div className="flex-1 space-y-4 pb-6">
@@ -58,7 +58,7 @@ export function Chat() {
               <Sparkles className="h-3.5 w-3.5" />
             </div>
             <p className="text-sm leading-relaxed text-foreground">
-              Hey — I'm Sakai. Tell me what changed today and I'll update the right place. You can also just talk if it's easier.
+              Hey — I'm {state.assistant.name || "Sakai"}. Tell me what changed today and I'll update the right place. You can also just talk if it's easier.
             </p>
           </div>
         )}

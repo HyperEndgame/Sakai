@@ -14,7 +14,7 @@ const areaLabel: Record<Area, string> = {
 };
 
 // ponytail: "personal" is the catch-all bucket, not one of the tracked life pillars
-const gridAreas: Area[] = ["school", "projects", "coding", "business", "fitness", "scouts"];
+const allAreas: Area[] = ["school", "projects", "coding", "business", "fitness", "scouts"];
 
 export function Insights() {
   const { state } = useStore();
@@ -56,7 +56,7 @@ export function Insights() {
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground">All life areas</h2>
         <div className="space-y-2">
-          {gridAreas.map((area) => {
+          {allAreas.filter((a) => state.profile.areas.includes(a)).map((area) => {
             const tasks = state.tasks.filter((t) => t.area === area);
             const open = tasks.filter((t) => !t.done);
             const goals = state.goals.filter((g) => g.area === area);

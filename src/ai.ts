@@ -38,7 +38,25 @@ function summarize(state: State): string {
     .join("\n");
   const goals = state.goals.map((g) => `- ${g.title} (${g.area}, ${g.progress}%)`).join("\n");
   const revenue = state.finances.reduce((s, f) => s + f.amount, 0);
-  return `Today: ${new Date().toDateString()}\nOpen tasks:\n${tasks || "none"}\nGoals:\n${goals || "none"}\nTotal logged revenue: $${revenue}\nUser interests: ${state.interests || "unknown"}`;
+  const p = state.profile;
+  const about = [
+    `Name: ${state.name}`,
+    p.org && `School/work: ${p.org}${p.role ? ` (${p.role})` : ""}`,
+    `Timezone: ${p.timezone}. Usually awake ${p.wake}-${p.sleep}`,
+    `Tracks: ${p.areas.join(", ") || "everything"}`,
+    p.about && `About: ${p.about}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return `${about}\nToday: ${new Date().toDateString()}\nOpen tasks:\n${tasks || "none"}\nGoals:\n${goals || "none"}\nTotal logged revenue: $${revenue}\nUser interests: ${state.interests || "unknown"}`;
+}
+
+// Assistant identity + style from Settings, shared by briefing and chat.
+function persona(state: State): string {
+  const a = state.assistant;
+  const tone = { warm: "Be warm and encouraging.", direct: "Be direct and no-nonsense.", playful: "Be light and playful." }[a.tone];
+  const extra = a.instructions.trim() ? ` User's standing instructions: ${a.instructions.trim()}` : "";
+  return `You are ${a.name.trim() || "Sakai"}, ${state.name.trim() ? `${state.name.trim()}'s` : "the user's"} personal chief of staff. ${tone}${extra}`;
 }
 
 export interface BriefingResult {
@@ -54,7 +72,8 @@ export async function generateBriefing(state: State): Promise<BriefingResult> {
   const data = await callClaude(state, {
     max_tokens: 2048,
     system:
-      "You are Sakai, a personal chief of staff. Use web search once to find 3 genuinely useful, distinct news items for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
+      persona(state) +
+      " Use web search once to find 3 genuinely useful, distinct news items for the user's interests — skip filler headlines. Then respond with ONLY JSON (no prose before or after): " +
       '{"briefing": "3-5 sentence daily briefing", "topAction": "the single highest-ROI action right now", "news": "1-2 sentence personalized news brief", ' +
       '"stories": [{"category": "short tag like AI/Tech/World/Local", "title": "headline", "source": "publication name", "time": "e.g. 2h ago", "summary": "1-2 sentences on why it matters to this user"}], ' +
       '"pattern": "one sentence observation about the user\'s week (e.g. focus times, recurring blockers)", ' +
@@ -162,8 +181,8 @@ export async function chatWithSakai(
   userText: string,
 ): Promise<string> {
   const messages: any[] = [{ role: "user", content: `${summarize(state)}\n\nUser says: ${userText}` }];
-  const system =
-    "You are Sakai, the user's personal chief of staff. When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. Reply concisely (1-3 sentences).";
+  const length = state.assistant.length === "brief" ? "Reply concisely (1-3 sentences)." : "Reply in a few short paragraphs when useful.";
+  const system = `${persona(state)} When the user reports progress, income, deadlines, or new work, use tools to update the dashboard. ${length}`;
   for (let i = 0; i < 4; i++) {
     const data = await callClaude(state, { system, messages, tools });
     if (data.stop_reason !== "tool_use") {

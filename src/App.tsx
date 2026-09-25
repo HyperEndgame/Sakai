@@ -7,7 +7,8 @@ import { Insights } from "./Insights";
 import { Settings } from "./Settings";
 import { Decorations } from "./Decorations";
 import { useStore } from "./store";
-import { useApplyTheme } from "./theme";
+import { useApplyAccent, useApplyTheme } from "./theme";
+import { Onboarding } from "./Onboarding";
 import { updateDashboardNotification } from "./notify";
 import { cn } from "./cn";
 
@@ -24,6 +25,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("Home");
   const { state, dispatch } = useStore();
   const effectiveTheme = useApplyTheme(state.theme);
+  useApplyAccent(state.assistant.accent, effectiveTheme);
 
   useEffect(() => {
     if (!state.notifications) return;
@@ -34,9 +36,20 @@ export default function App() {
     dispatch({ type: "settings", patch: { theme: effectiveTheme === "dark" ? "light" : "dark" } });
   }
 
+  if (!state.onboarded) {
+    return (
+      <div className="relative min-h-screen bg-background text-foreground">
+        <Decorations key={state.assistant.accent} theme={effectiveTheme} decoration={state.decoration} />
+        <div className="relative z-10 mx-auto w-full max-w-xl">
+          <Onboarding />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <Decorations theme={effectiveTheme} decoration={state.decoration} />
+      <Decorations key={state.assistant.accent} theme={effectiveTheme} decoration={state.decoration} />
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-xl flex-col">
         <header className="flex items-center justify-between px-6 pt-6">
           <div className="flex items-center gap-2.5">
@@ -59,7 +72,7 @@ export default function App() {
           {tab === "Chat" && <Chat />}
           {tab === "Tasks" && <Tasks />}
           {tab === "Insights" && <Insights />}
-          {tab === "Settings" && <Settings effectiveTheme={effectiveTheme} onToggleTheme={toggleTheme} />}
+          {tab === "Settings" && <Settings effectiveTheme={effectiveTheme} />}
         </main>
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-lg">

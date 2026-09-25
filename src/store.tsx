@@ -66,6 +66,25 @@ export interface Briefing {
 }
 
 export type Theme = "light" | "dark" | "system";
+export type Accent = "coral" | "sage" | "sky" | "plum" | "amber";
+
+export interface Assistant {
+  name: string;
+  accent: Accent;
+  tone: "warm" | "direct" | "playful";
+  length: "brief" | "detailed";
+  instructions: string;
+}
+
+export interface Profile {
+  org: string; // school or workplace
+  role: string; // grade, major, or job title
+  timezone: string;
+  wake: string; // HH:MM
+  sleep: string; // HH:MM
+  about: string;
+  areas: Area[];
+}
 export type Decoration = "none" | "cherry-blossom" | "constellation";
 
 export interface State {
@@ -82,6 +101,9 @@ export interface State {
   theme: Theme;
   decoration: Decoration;
   notifications: boolean;
+  onboarded: boolean;
+  assistant: Assistant;
+  profile: Profile;
 }
 
 export type Action =
@@ -91,13 +113,18 @@ export type Action =
   | { type: "add-finance"; entry: FinanceEntry }
   | { type: "add-goal"; goal: Goal }
   | { type: "update-goal"; id: string; patch: Partial<Goal> }
+  | { type: "delete-goal"; id: string }
+  | { type: "reset" }
   | { type: "chat"; msg: ChatMsg }
   | { type: "set-briefing"; briefing: Briefing }
-  | {
-      type: "settings";
-      patch: Partial<Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decoration" | "notifications">>;
-    }
+  | { type: "settings"; patch: SettingsPatch }
+  | { type: "assistant"; patch: Partial<Assistant> }
+  | { type: "profile"; patch: Partial<Profile> }
   | { type: "integrations"; patch: Partial<Integrations> };
+
+export type SettingsPatch = Partial<
+  Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decoration" | "notifications" | "onboarded">
+>;
 
 const KEY = "sakai-state-v1";
 
@@ -114,6 +141,17 @@ const initial: State = {
   theme: "system",
   decoration: "cherry-blossom",
   notifications: true,
+  onboarded: false,
+  assistant: { name: "Sakai", accent: "coral", tone: "warm", length: "brief", instructions: "" },
+  profile: {
+    org: "",
+    role: "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    wake: "07:00",
+    sleep: "23:00",
+    about: "",
+    areas: ["school", "projects", "coding", "business", "fitness", "scouts"],
+  },
   integrations: {
     githubUser: "",
     githubToken: "",
@@ -131,7 +169,16 @@ const initial: State = {
 function load(): State {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...initial, ...JSON.parse(raw) } : initial;
+    if (!raw) return initial;
+    const saved = JSON.parse(raw);
+    // nested objects merge separately so saves from older versions pick up new fields
+    return {
+      ...initial,
+      ...saved,
+      assistant: { ...initial.assistant, ...saved.assistant },
+      profile: { ...initial.profile, ...saved.profile },
+      integrations: { ...initial.integrations, ...saved.integrations },
+    };
   } catch {
     return initial;
   }
@@ -151,12 +198,20 @@ function reducer(s: State, a: Action): State {
       return { ...s, goals: [...s.goals, a.goal] };
     case "update-goal":
       return { ...s, goals: s.goals.map((g) => (g.id === a.id ? { ...g, ...a.patch } : g)) };
+    case "delete-goal":
+      return { ...s, goals: s.goals.filter((g) => g.id !== a.id) };
+    case "reset":
+      return initial;
     case "chat":
       return { ...s, chat: [...s.chat.slice(-40), a.msg] };
     case "set-briefing":
       return { ...s, briefing: a.briefing };
     case "settings":
       return { ...s, ...a.patch };
+    case "assistant":
+      return { ...s, assistant: { ...s.assistant, ...a.patch } };
+    case "profile":
+      return { ...s, profile: { ...s.profile, ...a.patch } };
     case "integrations":
       return { ...s, integrations: { ...s.integrations, ...a.patch } };
   }
