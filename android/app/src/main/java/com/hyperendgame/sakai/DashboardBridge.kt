@@ -26,10 +26,16 @@ class DashboardBridge : Plugin() {
             .apply()
 
         val intent = Intent(context, DashboardService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
-            context.startService(intent)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        } catch (e: Exception) {
+            // Android refuses foreground-service starts from the background; the next in-app save retries
+            call.reject("service start blocked: ${e.message}")
+            return
         }
         call.resolve()
     }

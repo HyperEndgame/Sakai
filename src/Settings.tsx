@@ -7,10 +7,22 @@ import { Integrations } from "./Integrations";
 import { useStore } from "./store";
 import type { Decoration, SettingsPatch, Theme } from "./store";
 import {
-  AccentPicker, AreaChips, Field, GoalsEditor, Group, Segmented, Toggle, inputClass, lengthOptions, toneOptions,
+  AccentPicker,
+  AreaChips,
+  Field,
+  GoalsEditor,
+  Group,
+  Segmented,
+  TimeField,
+  Toggle,
+  inputClass,
+  lengthOptions,
+  modelOptions,
+  toneOptions,
 } from "./fields";
-import { accents } from "./theme";
+import { accents, fadeTheme } from "./theme";
 import { cn } from "./cn";
+import { clearError, lastError } from "./Crash";
 import { useBack } from "./back";
 
 type Page = "index" | "assistant" | "profile" | "life" | "rhythm" | "appearance" | "notifications" | "ai" | "connections" | "data";
@@ -207,12 +219,8 @@ function RhythmPage({ onBack }: { onBack: () => void }) {
     <SubPage title="Daily rhythm" lede="Helps your assistant plan around when you're actually awake." onBack={onBack}>
       <Group>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Usually up at">
-            <input type="time" className={inputClass} value={p.wake} onChange={(e) => setP({ wake: e.target.value })} />
-          </Field>
-          <Field label="Usually asleep by">
-            <input type="time" className={inputClass} value={p.sleep} onChange={(e) => setP({ sleep: e.target.value })} />
-          </Field>
+          <TimeField label="Usually up at" value={p.wake} onChange={(v) => setP({ wake: v })} />
+          <TimeField label="Usually asleep by" value={p.sleep} onChange={(v) => setP({ sleep: v })} />
         </div>
       </Group>
     </SubPage>
@@ -272,7 +280,7 @@ function AppearancePage({ theme, onBack }: { theme: "light" | "dark"; onBack: ()
       <Group>
         <div className="space-y-2">
           <p className="text-sm font-medium">Theme</p>
-          <Segmented label="Theme" value={state.theme} options={themeOptions} onChange={(t) => set({ theme: t })} />
+          <Segmented label="Theme" value={state.theme} options={themeOptions} onChange={(t) => fadeTheme(() => set({ theme: t }))} />
         </div>
         <div className="space-y-2">
           <p className="text-sm font-medium">Accent color</p>
@@ -346,12 +354,10 @@ function AiPage({ onBack }: { onBack: () => void }) {
         <Field label="Anthropic API key" hint={builtIn ? "Built-in key active. Paste your own to override." : "Stored only on this device."}>
           <input className={inputClass} type="password" autoComplete="off" placeholder="sk-ant-…" value={state.apiKey} onChange={(e) => set({ apiKey: e.target.value })} />
         </Field>
-        <Field label="Model">
-          <select className={inputClass} value={state.model} onChange={(e) => set({ model: e.target.value })}>
-            <option value="claude-haiku-4-5-20251001">Haiku 4.5 · fast, cheap</option>
-            <option value="claude-sonnet-5">Sonnet 5 · smarter</option>
-          </select>
-        </Field>
+        <div className="space-y-1.5">
+          <span className="text-sm font-medium">Model</span>
+          <Segmented label="Model" value={state.model as (typeof modelOptions)[number]["id"]} options={modelOptions} onChange={(m) => set({ model: m })} />
+        </div>
       </Group>
     </SubPage>
   );
@@ -361,6 +367,7 @@ function DataPage({ onBack }: { onBack: () => void }) {
   const { state, dispatch, set } = useSetters();
   const [copied, setCopied] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [err, setErr] = useState(lastError);
 
   async function copy() {
     // API keys and tokens stay out of the export
@@ -392,6 +399,19 @@ function DataPage({ onBack }: { onBack: () => void }) {
           </button>
         </div>
       </Group>
+      {err && (
+        <Group title="Last error">
+          <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-muted p-3 font-mono text-[11px] leading-relaxed">{err}</pre>
+          <div className="flex gap-2">
+            <button onClick={() => navigator.clipboard.writeText(err)} className="min-h-10 flex-1 rounded-xl border border-border text-sm font-medium hover:bg-muted">
+              Copy
+            </button>
+            <button onClick={() => (clearError(), setErr(""))} className="min-h-10 flex-1 rounded-xl border border-border text-sm font-medium hover:bg-muted">
+              Clear
+            </button>
+          </div>
+        </Group>
+      )}
       <section className="space-y-3 rounded-2xl border border-destructive/40 p-4">
         <div>
           <p className="text-sm font-medium">Erase everything</p>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import { useStore } from "./store";
-import { AccentPicker, AreaChips, Field, GoalsEditor, Segmented, inputClass, toneOptions } from "./fields";
+import { AccentPicker, AreaChips, Field, GoalsEditor, Segmented, inputClass, toneOptions, TimeField } from "./fields";
 import { cn } from "./cn";
 import { useBack } from "./back";
 
@@ -125,12 +125,8 @@ export function Onboarding() {
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Usually up at">
-                <input type="time" className={inputClass} value={p.wake} onChange={(e) => setP({ wake: e.target.value })} />
-              </Field>
-              <Field label="Usually asleep by">
-                <input type="time" className={inputClass} value={p.sleep} onChange={(e) => setP({ sleep: e.target.value })} />
-              </Field>
+              <TimeField label="Usually up at" value={p.wake} onChange={(v) => setP({ wake: v })} />
+              <TimeField label="Usually asleep by" value={p.sleep} onChange={(v) => setP({ sleep: v })} />
             </div>
             <Field label="Timezone">
               <input className={inputClass} value={p.timezone} onChange={(e) => setP({ timezone: e.target.value })} />

@@ -55,7 +55,12 @@ class DashboardService : Service() {
             )
             .build()
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_STICKY
+    // Every startForegroundService() must be answered with startForeground(), or Android kills the app.
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val prefs = getSharedPreferences("sakai", Context.MODE_PRIVATE)
+        startForeground(NOTIF_ID, build(prefs.getString("dash_title", null) ?: "Sakai", prefs.getString("dash_body", null) ?: ""))
+        return START_STICKY
+    }
     override fun onBind(intent: Intent?) = null
     override fun onDestroy() {
         scope.cancel()

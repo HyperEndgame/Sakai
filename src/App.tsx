@@ -7,7 +7,8 @@ import { Insights } from "./Insights";
 import { Settings } from "./Settings";
 import { Decorations } from "./Decorations";
 import { useStore } from "./store";
-import { useApplyAccent, useApplyTheme } from "./theme";
+import { ErrorBoundary } from "./Crash";
+import { fadeTheme, useApplyAccent, useApplyTheme } from "./theme";
 import { Onboarding } from "./Onboarding";
 import { useBack } from "./back";
 import { updateDashboardNotification } from "./notify";
@@ -36,7 +37,7 @@ export default function App() {
   }, [state.tasks, state.briefing, state.notifications]);
 
   function toggleTheme() {
-    dispatch({ type: "settings", patch: { theme: effectiveTheme === "dark" ? "light" : "dark" } });
+    fadeTheme(() => dispatch({ type: "settings", patch: { theme: effectiveTheme === "dark" ? "light" : "dark" } }));
   }
 
   if (!state.onboarded) {
@@ -71,11 +72,13 @@ export default function App() {
         </header>
 
         <main className="flex-1 px-6 pb-28 pt-6">
+          <ErrorBoundary key={tab} onHome={() => setTab("Home")}>
           {tab === "Home" && <Dashboard onOpenTasks={() => setTab("Tasks")} />}
           {tab === "Chat" && <Chat />}
           {tab === "Tasks" && <Tasks />}
           {tab === "Insights" && <Insights />}
           {tab === "Settings" && <Settings effectiveTheme={effectiveTheme} />}
+          </ErrorBoundary>
         </main>
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background">

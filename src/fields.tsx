@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Check, Plus, X } from "lucide-react";
+import { Check, Minus, Plus, X } from "lucide-react";
 import { accents } from "./theme";
 import { uid } from "./store";
 import type { Accent, Area, Goal } from "./store";
@@ -171,13 +171,6 @@ export function GoalsEditor({
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
           aria-label="New goal"
         />
-        <select className={cn(inputClass, "w-[6.5rem] shrink-0 px-2")} value={area} onChange={(e) => setArea(e.target.value as Area)} aria-label="Goal area">
-          {(Object.keys(areaLabels) as Area[]).map((a) => (
-            <option key={a} value={a}>
-              {areaLabels[a]}
-            </option>
-          ))}
-        </select>
         <button
           type="button"
           onClick={add}
@@ -188,9 +181,57 @@ export function GoalsEditor({
           <Plus className="h-4 w-4" />
         </button>
       </div>
+      <div role="radiogroup" aria-label="Goal area" className="flex flex-wrap gap-1.5">
+        {(areas.length ? areas : (Object.keys(areaLabels) as Area[])).map((a) => (
+          <button
+            key={a}
+            type="button"
+            role="radio"
+            aria-checked={area === a}
+            onClick={() => setArea(a)}
+            className={cn(
+              "min-h-8 rounded-full border px-3 text-xs transition-colors",
+              area === a ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground",
+            )}
+          >
+            {areaLabels[a]}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
+
+// "HH:MM" stepper in 30-minute steps; replaces the native time dialog.
+export function TimeField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [h, m] = value.split(":").map(Number);
+  const mins = (h || 0) * 60 + (m || 0);
+  const step = (d: number) => {
+    const t = (((Math.round(mins / 30) * 30 + d) % 1440) + 1440) % 1440;
+    onChange(`${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`);
+  };
+  const shown = new Date(2000, 0, 1, h || 0, m || 0).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const btn = "flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground";
+  return (
+    <div className="space-y-1.5">
+      <span className="text-sm font-medium">{label}</span>
+      <div className="flex items-center rounded-xl border border-border bg-background p-0.5">
+        <button type="button" className={btn} onClick={() => step(-30)} aria-label={`${label} earlier`}>
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="flex-1 text-center text-sm tabular-nums" aria-live="polite">{shown}</span>
+        <button type="button" className={btn} onClick={() => step(30)} aria-label={`${label} later`}>
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export const modelOptions = [
+  { id: "claude-haiku-4-5-20251001", label: "Haiku · fast" },
+  { id: "claude-sonnet-5", label: "Sonnet · smarter" },
+] as const;
 
 export function Toggle({ label, hint, on, onChange }: { label: string; hint?: string; on: boolean; onChange: (v: boolean) => void }) {
   return (

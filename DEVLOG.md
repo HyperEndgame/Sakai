@@ -2,6 +2,18 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-25 · v0.8.3 — Icon, crash guards, smooth theme
+- **App icon** is now the Sakai mark (ring, dot, linked stars) on cream, as an adaptive icon with a themed-icon (monochrome) layer. The Capacitor splash logo is gone; launch shows the Sakai mark.
+- **No native dropdowns in onboarding/settings**: goal area is a chip row, wake/sleep times are −/+ steppers (30 min), model is a segmented control.
+- **Theme switch** is one 320 ms crossfade (View Transitions) instead of every element easing separately; the theme class flips in the same frame as the state, and the status bar repaints after the fade.
+- **Crash hardening** (couldn't reproduce on the emulator, so every likely path is guarded):
+  - each tab is wrapped in an error boundary: a broken screen shows a message and "Back to Home" instead of blanking the app
+  - the last JS error is saved on-device and shown in **Settings → Data → Last error** (copyable)
+  - voice input: mic is released when you leave the screen, start errors are caught
+  - if the WebView renderer dies, the screen is rebuilt instead of the app closing
+  - notification service always answers `startForegroundService` with `startForeground`, and a blocked start no longer throws
+- Verified on the Android 16 emulator: icon in the drawer, tab stress (15 rapid switches), voice → tab switch (mic released), theme fade, new steppers/chips.
+
 ## 2026-09-25 · v0.8.2 — Phone build
 - "Your news" back to the original layout (image tile + summary box), by request.
 - **Android Back button** now steps back inside the app (settings subpage → Settings → Home, onboarding step → previous step) and only backgrounds the app at Home. Before, it closed the app from anywhere.

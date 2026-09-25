@@ -1,37 +1,49 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import type { Accent, Theme } from "./store";
+import { flushSync } from "react-dom";
 import { syncSystemBars } from "./notify";
 
 function systemPrefersDark(): boolean {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
 }
 
-function resolve(theme: Theme): "light" | "dark" {
-  return theme === "system" ? (systemPrefersDark() ? "dark" : "light") : theme;
-}
-
-// Toggles the .dark class + color-scheme on <html> and tracks the resolved light/dark value, following
-// the OS preference live while the user is on "system".
+// Toggles the .dark class + color-scheme on <html> and returns the resolved light/dark value, following
+// the OS preference live while the user is on "system". Derived (not effect-set) so the class flips
+// in the same commit as the state change — no frame of mixed themes.
 export function useApplyTheme(theme: Theme): "light" | "dark" {
-  const [effective, setEffective] = useState(() => resolve(theme));
+  const [sysDark, setSysDark] = useState(systemPrefersDark);
+  const effective = theme === "system" ? (sysDark ? "dark" : "light") : theme;
 
   useEffect(() => {
-    setEffective(resolve(theme));
-    if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setEffective(resolve("system"));
+    const onChange = () => setSysDark(mq.matches);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
-  }, [theme]);
+  }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", effective === "dark");
     root.style.colorScheme = effective;
-    syncSystemBars(effective);
+  }, [effective]);
+
+  // bars can't crossfade, so repaint them once the page fade (fadeTheme) is done
+  useEffect(() => {
+    const t = setTimeout(() => syncSystemBars(effective), document.documentElement.classList.contains("theme-swap") ? 320 : 0);
+    return () => clearTimeout(t);
   }, [effective]);
 
   return effective;
+}
+
+// Runs a theme/accent change as one GPU crossfade instead of every element easing its own colors.
+export function fadeTheme(change: () => void) {
+  const doc = document as any;
+  if (!doc.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) return change();
+  const root = document.documentElement;
+  root.classList.add("theme-swap");
+  const t = doc.startViewTransition(() => flushSync(change));
+  t.finished.finally(() => root.classList.remove("theme-swap"));
 }
 
 // Accent = hue + chroma per theme; rgb triple mirrors it for the canvas constellation (oklch unsafe there).

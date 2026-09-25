@@ -391,3 +391,10 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 - `NewsFeed.tsx` restored to e3b4d92 layout (user preference).
 - `src/back.ts`: global back-handler stack exposed as `window.sakaiBack()`; `useBack(active, fn)` used by App (tab→Home), Settings (subpage→index), Onboarding (step→prev). `MainActivity` OnBackPressedCallback evaluates it, else `moveTaskToBack`.
 - Release APK built with `VITE_ANTHROPIC_API_KEY=` so no key ships in the bundle (verified: 0 `sk-ant-api` matches in APK assets). Settings key path verified end-to-end on API 36 (401 invalid key for dummy).
+
+## v0.8.3 (2026-09-25) — icon, crash guards, theme fade (small; no haiku)
+- Icon: `res/drawable/ic_sakai_fg.xml` + `ic_sakai_mono.xml` (vector of the onboarding `Mark`), adaptive icons in `mipmap-anydpi-v26`, legacy PNGs regenerated, bg `#F8F3EB`. Capacitor splash PNGs deleted; launch theme uses `windowSplashScreenAnimatedIcon`.
+- `fields.tsx`: goal-area chips replace `<select>`, `TimeField` (±30 min) replaces `type=time`, `modelOptions` Segmented replaces model `<select>`.
+- `theme.ts`: `useApplyTheme` derives `effective` (no effect-set state), class flip in `useLayoutEffect`; `fadeTheme()` wraps changes in `startViewTransition` + `flushSync`, `.theme-swap` kills per-element transitions; bars sync after 320 ms.
+- Crash (user report: voice + tab switch; not reproducible on API 36 emulator): `src/Crash.tsx` ErrorBoundary per tab + global error log (`sakai-last-error`, shown in Settings → Data); `useVoice` aborts on unmount, try/catch start; `MainActivity` WebViewListener recreates on render-process-gone; `DashboardService.onStartCommand` calls `startForeground`; `DashboardBridge.save` catches blocked FGS start.
+- Open: if the phone still crashes, read Settings → Data → Last error, or `adb logcat` over USB.

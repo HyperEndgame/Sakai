@@ -214,3 +214,15 @@
   .mark-animate .mark-star,
   .mark-animate .mark-link { animation: none; }
 }
+
+/* Theme switch: one crossfade of the whole page (see fadeTheme in theme.ts). */
+.theme-swap *,
+.theme-swap *::before,
+.theme-swap *::after {
+  transition: none !important;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
