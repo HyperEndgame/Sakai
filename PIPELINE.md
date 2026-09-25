@@ -359,3 +359,4 @@ Not committed/pushed per instruction — review happens first.
 - Found: the `.env` Anthropic key's account has no credit ("credit balance is too low") — chat/briefing fail until topped up or a key is set in Settings. Error surfaces correctly in the UI.
 - No Android emulator installed: the SDK's `android-37.1` system image is only a partial download (`.installer`), and no AVD exists.
 - README/PRODUCT_REPORT/PRODUCT updated for Sakai v0.7.
+- Emulator set up (2026-09-25): `android-35/google_apis/x86_64` image + AVD `Sakai_Pixel` (1080x2400). APK installs and runs; all 5 tabs + dark mode render; `DashboardService` stays foreground after `am kill` and shows "Sakai · All clear". Notification appears up to 30s after granting permission (next refresh tick). Launch: `emulator -avd Sakai_Pixel`.
