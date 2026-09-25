@@ -76,13 +76,7 @@ export function Onboarding() {
             <span key={s} className={cn("h-1 flex-1 rounded-full transition-colors duration-300", n <= i ? "bg-primary" : "bg-border")} />
           ))}
         </div>
-        {step !== "done" ? (
-          <button onClick={finish} className="min-h-10 px-2 text-sm text-muted-foreground hover:text-foreground">
-            Skip
-          </button>
-        ) : (
-          <span className="w-8" />
-        )}
+        <span className="w-8" />
       </div>
 
       <main key={step} className="onb-in flex-1 py-8">
@@ -221,7 +215,7 @@ export function Onboarding() {
         )}
       </main>
 
-      <div className="sticky bottom-0 -mx-6 bg-gradient-to-t from-background via-background to-transparent px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
+      <div className="sticky bottom-0 -mx-6 space-y-1 border-t border-border bg-background px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
         <button
           onClick={next}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 active:opacity-80"
@@ -229,6 +223,11 @@ export function Onboarding() {
           {step === "welcome" ? "Get started" : step === "done" ? `Start with ${assistantName}` : "Continue"}
           <ArrowRight className="h-4 w-4" />
         </button>
+        {step !== "done" && (
+          <button onClick={finish} className="min-h-11 w-full text-sm font-medium text-muted-foreground hover:text-foreground">
+            {step === "welcome" ? "Skip setup" : "Skip the rest"}
+          </button>
+        )}
       </div>
     </div>
   );

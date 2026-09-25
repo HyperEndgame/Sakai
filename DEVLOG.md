@@ -2,6 +2,24 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-25 · v0.8.1 — Polish pass
+**Fixed**
+- **Color bleeding**: removed the blurred see-through bottom nav (content smeared through it), the accent-tinted card gradients, and the onboarding footer fade. Surfaces are solid now.
+- **Clashing colors**: news thumbnails were hardcoded pink/rust/green gradients; now an accent-tinted icon per category. Accent palette retuned to muted tones that sit with cream/charcoal: Coral, Moss, Slate, Rose, Ochre.
+- **Lag**: no backdrop blur, no per-petal drop-shadow filter.
+- **Overscroll stretch** disabled (native WebView + CSS).
+- **Tap flash** (Android's blue highlight) removed; tabs now open scrolled to the top.
+- **Status & navigation bars** now match the app background in light and dark.
+- Cherry blossom is **off by default**. Onboarding has a clear **Skip setup / Skip the rest** button under Continue.
+
+**Android**
+- Target/compile SDK 34 → 35 (edge-to-edge enforcement opted out so the WebView sits between the bars).
+- Dashboard notification service switched `dataSync` → `specialUse`: Android 15+ caps dataSync services at 6 h/day, which would have killed the always-on notification.
+
+**Housekeeping**: old `UI_PLAN*.md` moved to `archive/`.
+
+**Verified** on the Android 16 emulator: fresh install → Skip setup → Home, overscroll at bottom, dark/light bars, new accents, service type `specialUse`.
+
 ## 2026-09-25 · v0.8 — Welcome flow + full settings
 **Shipped**
 - First-run onboarding (6 steps): welcome animation → name your assistant (name, accent, tone) → about you (name, school/work, grade/role, wake/sleep, timezone) → focus (life areas, goals, interests) → connect (API key, GitHub, Canvas, Google Calendar; all optional) → "Hi, I'm {assistant}". Skip is always visible, and every field has a default so Continue never blocks.

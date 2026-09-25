@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import type { Accent, Theme } from "./store";
+import { syncSystemBars } from "./notify";
 
 function systemPrefersDark(): boolean {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
@@ -27,6 +28,7 @@ export function useApplyTheme(theme: Theme): "light" | "dark" {
     const root = document.documentElement;
     root.classList.toggle("dark", effective === "dark");
     root.style.colorScheme = effective;
+    syncSystemBars(effective);
   }, [effective]);
 
   return effective;
@@ -35,10 +37,11 @@ export function useApplyTheme(theme: Theme): "light" | "dark" {
 // Accent = hue + chroma per theme; rgb triple mirrors it for the canvas constellation (oklch unsafe there).
 export const accents: Record<Accent, { label: string; light: string; dark: string; rgb: string }> = {
   coral: { label: "Coral", light: "oklch(0.62 0.14 42)", dark: "oklch(0.72 0.13 45)", rgb: "232 135 97" },
-  sage: { label: "Sage", light: "oklch(0.56 0.09 150)", dark: "oklch(0.72 0.09 150)", rgb: "123 181 135" },
-  sky: { label: "Sky", light: "oklch(0.56 0.11 240)", dark: "oklch(0.72 0.1 240)", rgb: "103 173 221" },
-  plum: { label: "Plum", light: "oklch(0.56 0.12 330)", dark: "oklch(0.72 0.11 330)", rgb: "204 139 197" },
-  amber: { label: "Amber", light: "oklch(0.6 0.12 70)", dark: "oklch(0.74 0.12 70)", rgb: "212 150 72" },
+  // ponytail: ids kept from v0.8 so saved choices still resolve; hues retuned to sit with cream/charcoal
+  sage: { label: "Moss", light: "oklch(0.55 0.07 140)", dark: "oklch(0.74 0.07 140)", rgb: "148 182 140" },
+  sky: { label: "Slate", light: "oklch(0.53 0.06 245)", dark: "oklch(0.74 0.06 245)", rgb: "139 175 207" },
+  plum: { label: "Rose", light: "oklch(0.58 0.1 10)", dark: "oklch(0.74 0.09 10)", rgb: "221 147 158" },
+  amber: { label: "Ochre", light: "oklch(0.6 0.1 75)", dark: "oklch(0.76 0.1 75)", rgb: "214 168 102" },
 };
 
 const accentVars = ["--primary", "--ring", "--chart-1", "--sidebar-primary", "--sidebar-ring"];

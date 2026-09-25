@@ -2,7 +2,9 @@ package com.hyperendgame.sakai
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
+import androidx.core.view.WindowCompat
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
@@ -28,6 +30,27 @@ class DashboardBridge : Plugin() {
             context.startForegroundService(intent)
         } else {
             context.startService(intent)
+        }
+        call.resolve()
+    }
+
+    // Status/nav bars follow the web theme. ponytail: relies on the edge-to-edge opt-out
+    // (values-v35/styles.xml); targeting API 36 means switching to inset padding instead.
+    @PluginMethod
+    fun setBars(call: PluginCall) {
+        val color = try { Color.parseColor(call.getString("color")) } catch (_: Exception) { call.reject("bad color"); return }
+        val light = call.getBoolean("light", true) ?: true
+        activity.runOnUiThread {
+            val w = activity.window
+            @Suppress("DEPRECATION")
+            w.statusBarColor = color
+            @Suppress("DEPRECATION")
+            w.navigationBarColor = color
+            w.decorView.setBackgroundColor(color)
+            WindowCompat.getInsetsController(w, w.decorView).apply {
+                isAppearanceLightStatusBars = light
+                isAppearanceLightNavigationBars = light
+            }
         }
         call.resolve()
     }

@@ -144,6 +144,17 @@
     border-color: var(--color-border);
   }
 
+  html,
+  body {
+    overscroll-behavior: none;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -171,7 +182,6 @@
   animation-name: petal-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  filter: drop-shadow(0 1px 1px oklch(0.7 0.1 20 / 0.25));
 }
 @media (prefers-reduced-motion: reduce) {
   .petal {

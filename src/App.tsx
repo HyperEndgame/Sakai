@@ -23,6 +23,7 @@ type Tab = (typeof tabs)[number]["key"];
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("Home");
+  useEffect(() => window.scrollTo(0, 0), [tab]);
   const { state, dispatch } = useStore();
   const effectiveTheme = useApplyTheme(state.theme);
   useApplyAccent(state.assistant.accent, effectiveTheme);
@@ -75,7 +76,7 @@ export default function App() {
           {tab === "Settings" && <Settings effectiveTheme={effectiveTheme} />}
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-lg">
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background">
           <div className="mx-auto flex w-full max-w-xl items-center justify-around px-1 py-2">
             {tabs.map(({ key, label, icon: Icon }) => {
               const active = key === tab;

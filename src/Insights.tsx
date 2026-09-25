@@ -91,7 +91,7 @@ export function Insights() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-gradient-to-br from-card to-accent/60 p-5">
+      <section className="rounded-2xl border border-border bg-card p-5">
         <div className="flex items-start gap-3">
           <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Sparkles className="h-4 w-4" />

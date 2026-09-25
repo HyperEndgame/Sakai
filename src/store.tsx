@@ -139,7 +139,7 @@ const initial: State = {
   model: "claude-haiku-4-5-20251001",
   name: "Hyper",
   theme: "system",
-  decoration: "cherry-blossom",
+  decoration: "none",
   notifications: true,
   onboarded: false,
   assistant: { name: "Sakai", accent: "coral", tone: "warm", length: "brief", instructions: "" },

@@ -169,7 +169,7 @@ export function Dashboard({ onOpenTasks }: { onOpenTasks: () => void }) {
       </form>
       {lastReply && <p className="px-1 text-xs text-muted-foreground">{lastReply}</p>}
 
-      <section className="rounded-3xl border border-border bg-gradient-to-br from-card via-card to-accent/50 p-5">
+      <section className="rounded-3xl border border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5 text-primary" />

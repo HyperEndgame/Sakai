@@ -377,3 +377,12 @@ Not committed/pushed per instruction — review happens first.
 1. `persona()` produced "You are Sakai, 's personal chief of staff" when name empty → fixed (falls back to "the user's").
 Everything else clean (load deep-merge, hook order, accent/layout-effect ordering, export strips keys, two-tap erase, GoalsEditor empty-areas default).
 - Haiku re-review after fix: no breaking issues. Loop closed.
+
+## v0.8.1 (2026-09-25) — polish (small fix; no haiku per user)
+- Removed nav `backdrop-blur`, card gradients, onboarding footer gradient (visual bleed + lag); petal `filter` removed.
+- `NewsFeed.tsx`: accent icon tiles replace hardcoded gradients. `theme.ts` accents retuned (ids unchanged: sage=Moss, sky=Slate, plum=Rose, amber=Ochre).
+- `App.tsx` scroll-to-top on tab change; `styles.css` overscroll none + no tap highlight; `MainActivity` `OVER_SCROLL_NEVER`.
+- `DashboardBridge.setBars` + `notify.ts syncSystemBars` (called from `useApplyTheme`) paint status/nav bars from computed body bg.
+- SDK 35 (`variables.gradle`, `suppressUnsupportedCompileSdk=35`, `values-v35/styles.xml` edge-to-edge opt-out). Targeting 36 later needs inset padding instead of the opt-out.
+- FGS `dataSync` → `specialUse` (6h/day cap on API 35).
+- Onboarding: single Skip under Continue; default decoration `none`. `UI_PLAN*.md` → `archive/`.

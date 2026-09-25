@@ -19,11 +19,11 @@ npm run android      # builds web, syncs, opens Android Studio
 
 Emulators: `Sakai_A16` (Android 16, matches the Nothing Phone 3a) and `Sakai_Pixel` (Android 15). Start one with `$LOCALAPPDATA/Android/Sdk/emulator/emulator.exe -avd Sakai_A16`, or pick it in Android Studio's Device Manager.
 
-In Android Studio: pick an emulator or USB device and press Run, or Build > Build APK(s). Output: `android/app/build/outputs/apk/debug/app-debug.apk`. Rebuild after any `src/` change — the APK bundles the web build.
+In Android Studio: pick an emulator or USB device and press Run, or Build > Build APK(s). Output: `android/app/build/outputs/apk/debug/app-debug.apk`. Targets Android 15 (API 35), tested on Android 16. Rebuild after any `src/` change — the APK bundles the web build.
 
 ## First run
 
-A short welcome flow sets up your assistant (name, accent color, tone), your profile (school/work, daily rhythm, timezone), the life areas and goals you track, and optional keys/feeds. Skip anytime; everything is editable in Settings, and **Settings → Data → Replay welcome** runs it again.
+A short welcome flow sets up your assistant (name, accent color, tone), your profile (school/work, daily rhythm, timezone), the life areas and goals you track, and optional keys/feeds. Skip anytime (button under Continue); everything is editable in Settings, and **Settings → Data → Replay welcome** runs it again.
 
 ## Tabs
 
