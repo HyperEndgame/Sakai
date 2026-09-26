@@ -15,6 +15,13 @@ Copy `.env.example` to `.env` and set `VITE_ANTHROPIC_API_KEY` (or paste a key i
 
 **Install on your phone:** download the latest `sakai-*.apk` from GitHub → Releases, open it, allow "Install unknown apps" for your browser when asked, then in the app go to Settings → AI & keys and paste your Anthropic API key. Voice input needs the Google app (speech recognition) enabled.
 
+**Free models via FreeLLMAPI:** Settings → AI & keys → FreeLLMAPI. Router address = your PC's LAN address and port (desktop app default `31415`), key = the unified `freellmapi-…` key, then **Connect**. The desktop router listens on localhost only; expose it to your Wi-Fi from an **admin** terminal:
+
+```
+netsh interface portproxy add v4tov4 listenaddress=<PC-LAN-IP> listenport=31415 connectaddress=127.0.0.1 connectport=31415
+netsh advfirewall firewall add rule name="FreeLLMAPI LAN" dir=in action=allow protocol=TCP localport=31415 remoteip=localsubnet
+```
+
 To build a phone APK without baking in the `.env` key:
 
 ```

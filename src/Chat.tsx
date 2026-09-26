@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, ArrowUp, Sparkles } from "lucide-react";
-import { apiKey, chatWithSakai } from "./ai";
+import { aiMissing, aiReady, chatWithSakai } from "./ai";
 import { useStore } from "./store";
 import { useVoice } from "./useVoice";
 import { cn } from "./cn";
@@ -27,8 +27,8 @@ export function Chat() {
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || busy) return;
-    if (!apiKey(state)) {
-      dispatch({ type: "chat", msg: { role: "assistant", text: "Add your Anthropic API key in Settings first." } });
+    if (!aiReady(state)) {
+      dispatch({ type: "chat", msg: { role: "assistant", text: aiMissing } });
       return;
     }
     setInput("");
@@ -45,7 +45,7 @@ export function Chat() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-11rem)] flex-col">
+    <div className="flex min-h-[calc(100dvh-11rem-var(--sat,0px)-var(--sab,0px))] flex-col">
       <header className="space-y-1 pb-4">
         <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Assistant</p>
         <h1 className="font-serif text-3xl tracking-tight">Talk to {state.assistant.name || "Sakai"}</h1>
@@ -69,10 +69,10 @@ export function Chat() {
                 <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
                 </div>
-                <p className="text-sm leading-relaxed text-foreground">{m.text}</p>
+                <p className="min-w-0 whitespace-pre-wrap text-sm leading-relaxed text-foreground [overflow-wrap:anywhere]">{m.text}</p>
               </div>
             ) : (
-              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-sm text-primary-foreground">{m.text}</div>
+              <div className="max-w-[85%] whitespace-pre-wrap [overflow-wrap:anywhere] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-sm text-primary-foreground">{m.text}</div>
             )}
           </div>
         ))}
@@ -99,7 +99,7 @@ export function Chat() {
           e.preventDefault();
           send(input);
         }}
-        className="sticky bottom-24 z-10"
+        className="sticky bottom-[calc(6rem+var(--sab,0px))] z-10"
       >
         <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm">
           <button

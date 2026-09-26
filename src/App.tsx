@@ -75,7 +75,7 @@ export default function App() {
           </button>
         </header>
 
-        <main className="flex-1 px-6 pb-28 pt-6">
+        <main className="flex-1 px-6 pb-[calc(7rem+var(--sab,0px))] pt-6">
           <ErrorBoundary key={`${tab}-${nonce}`} onHome={() => setTab("Home")}>
           {tab === "Home" && <Dashboard onOpenTasks={() => setTab("Tasks")} />}
           {tab === "Chat" && <Chat />}

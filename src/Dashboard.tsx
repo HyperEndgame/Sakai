@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Flame, Sparkles, GitCommit, Mail, Calendar as CalIcon, BookOpen, RefreshCw, Mic, ArrowUp } from "lucide-react";
-import { apiKey, chatWithSakai, generateBriefing } from "./ai";
+import { aiMissing, aiReady, chatWithSakai, generateBriefing } from "./ai";
 import { useStore } from "./store";
 import type { Integrations, Quadrant, Task } from "./store";
 import { useVoice } from "./useVoice";
@@ -59,8 +59,8 @@ export function Dashboard({ onOpenTasks }: { onOpenTasks: () => void }) {
   const dateLine = now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   async function refresh() {
-    if (!apiKey(state)) {
-      setError("Add your Anthropic API key in Settings first.");
+    if (!aiReady(state)) {
+      setError(aiMissing);
       return;
     }
     setBusy(true);
@@ -84,8 +84,8 @@ export function Dashboard({ onOpenTasks }: { onOpenTasks: () => void }) {
   async function sendChat(text: string) {
     const msg = text.trim();
     if (!msg || chatBusy) return;
-    if (!apiKey(state)) {
-      setLastReply("Add your Anthropic API key in Settings first.");
+    if (!aiReady(state)) {
+      setLastReply(aiMissing);
       return;
     }
     setInput("");

@@ -2,6 +2,13 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-26 · v0.8.7 — FreeLLMAPI provider
+- **Settings → AI & keys → Provider: Claude | FreeLLMAPI.** Enter your router address + unified key, tap **Connect** to load its model list; Sakai auto-picks **GPT-OSS 120B** (best tool-calling model with the most free budget across Groq/Cloudflare/Ollama), falling back to Llama 3.3 70B → Nemotron Super → GLM-4.7 → `auto:smart`. Also on the onboarding Connect step.
+- The desktop FreeLLMAPI build only serves the OpenAI API (`/v1/messages` is 404), so Sakai translates its Claude-style calls (system, tools, tool_use/tool_result loop) to `/v1/chat/completions` and back. Chat tools, briefing and Gmail extraction all work through it. Web search is Claude-only, so FreeLLMAPI briefings pick news from model knowledge.
+- Router calls use native HTTP on Android (plain-http LAN address, no CORS/mixed-content issues); cleartext allowed.
+- Fixed: chat composer covering the last suggestion chip after edge-to-edge; long unbroken text (e.g. an HTML error) widening the whole app.
+- Verified on the Android 16 emulator against the real router on this PC (`10.0.2.2:31415`): Connect and chat both reach it and surface its auth error with a dummy key. Review agent: no breaking issues.
+
 ## 2026-09-26 · v0.8.6 — Calendar, voice, edge-to-edge
 - **Tasks calendar**: month grid at the top of Tasks. Dots mark days with open tasks (incl. Canvas/Google Calendar imports); tap a day to see what's due and add a task for that date.
 - **Insights**: daily brief removed (news stays on Home).

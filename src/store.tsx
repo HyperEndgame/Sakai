@@ -87,6 +87,8 @@ export interface Profile {
 }
 export type Decoration = "none" | "cherry-blossom" | "constellation";
 
+export type Provider = "claude" | "freellmapi";
+
 export interface State {
   tasks: Task[];
   finances: FinanceEntry[];
@@ -96,6 +98,10 @@ export interface State {
   interests: string;
   apiKey: string;
   model: string;
+  provider: Provider;
+  llmBase: string; // FreeLLMAPI router origin, e.g. http://192.168.4.175:31415
+  llmKey: string;
+  llmModel: string;
   integrations: Integrations;
   name: string;
   theme: Theme;
@@ -123,7 +129,7 @@ export type Action =
   | { type: "integrations"; patch: Partial<Integrations> };
 
 export type SettingsPatch = Partial<
-  Pick<State, "interests" | "apiKey" | "model" | "name" | "theme" | "decoration" | "notifications" | "onboarded">
+  Pick<State, "interests" | "apiKey" | "model" | "provider" | "llmBase" | "llmKey" | "llmModel" | "name" | "theme" | "decoration" | "notifications" | "onboarded">
 >;
 
 const KEY = "sakai-state-v1";
@@ -137,6 +143,10 @@ const initial: State = {
   interests: "",
   apiKey: "",
   model: "claude-haiku-4-5-20251001",
+  provider: "claude",
+  llmBase: "",
+  llmKey: "",
+  llmModel: "",
   name: "Hyper",
   theme: "system",
   decoration: "none",

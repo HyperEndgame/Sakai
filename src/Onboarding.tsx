@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import { useStore } from "./store";
+import { AiSetup } from "./AiSetup";
 import { AccentPicker, AreaChips, Field, GoalsEditor, Segmented, inputClass, toneOptions, TimeField } from "./fields";
 import { cn } from "./cn";
 import { useBack } from "./back";
@@ -159,16 +160,7 @@ export function Onboarding() {
 
         {step === "connect" && (
           <Step title="Connect your world." lede="All optional. Keys and links are stored only on this phone; skip anything and add it later.">
-            <Field label="Anthropic API key" hint="Powers chat and your daily briefing.">
-              <input
-                type="password"
-                className={inputClass}
-                value={state.apiKey}
-                placeholder="sk-ant-…"
-                autoComplete="off"
-                onChange={(e) => dispatch({ type: "settings", patch: { apiKey: e.target.value } })}
-              />
-            </Field>
+            <AiSetup />
             <Field label="GitHub username" hint="Counts your commits this week.">
               <input
                 className={inputClass}

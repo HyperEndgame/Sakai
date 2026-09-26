@@ -1,3 +1,4 @@
+import { callClaude } from "./ai";
 import type { Action, State } from "./store";
 import { autoQuadrant, uid } from "./store";
 
@@ -45,25 +46,12 @@ interface Extracted {
 }
 
 async function extractActions(state: State, digest: string): Promise<Extracted[]> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": state.apiKey || import.meta.env.VITE_ANTHROPIC_API_KEY || "",
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: state.model,
-      max_tokens: 1024,
-      system:
-        "Extract real action items and deadlines from these email subjects/snippets. Skip newsletters, receipts, and noise. Respond with ONLY a JSON array (no prose): " +
-        '[{"title": "short action", "due": "YYYY-MM-DD or omit"}]. Empty array if nothing actionable.',
-      messages: [{ role: "user", content: digest }],
-    }),
+  const data = await callClaude(state, {
+    system:
+      "Extract real action items and deadlines from these email subjects/snippets. Skip newsletters, receipts, and noise. Respond with ONLY a JSON array (no prose): " +
+      '[{"title": "short action", "due": "YYYY-MM-DD or omit"}]. Empty array if nothing actionable.',
+    messages: [{ role: "user", content: digest }],
   });
-  if (!res.ok) throw new Error(`Claude API ${res.status}`);
-  const data = await res.json();
   const text = data.content.find((c: any) => c.type === "text")?.text ?? "[]";
   const raw = text.slice(text.indexOf("["), text.lastIndexOf("]") + 1);
   try {

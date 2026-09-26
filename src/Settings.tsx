@@ -23,6 +23,8 @@ import {
 import { accents, fadeTheme } from "./theme";
 import { cn } from "./cn";
 import { clearError, lastError } from "./Crash";
+import { AiSetup } from "./AiSetup";
+import { aiReady } from "./ai";
 import { useBack } from "./back";
 
 type Page = "index" | "assistant" | "profile" | "life" | "rhythm" | "appearance" | "notifications" | "ai" | "connections" | "data";
@@ -68,7 +70,7 @@ export function Settings({ effectiveTheme }: { effectiveTheme: "light" | "dark" 
         <h2 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">App</h2>
         <SettingRow onClick={() => setPage("appearance")} icon={<Palette className="h-4 w-4" />} label="Appearance" hint={`${cap(state.theme)} · ${accents[a.accent]?.label ?? "Coral"}`} />
         <SettingRow onClick={() => setPage("notifications")} icon={<Bell className="h-4 w-4" />} label="Notifications" hint={state.notifications ? "Dashboard notification on" : "Off"} />
-        <SettingRow onClick={() => setPage("ai")} icon={<KeyRound className="h-4 w-4" />} label="AI & keys" hint={state.apiKey || import.meta.env.VITE_ANTHROPIC_API_KEY ? "Key set" : "No API key yet"} />
+        <SettingRow onClick={() => setPage("ai")} icon={<KeyRound className="h-4 w-4" />} label="AI & keys" hint={!aiReady(state) ? "Not set up yet" : state.provider === "freellmapi" ? `FreeLLMAPI · ${state.llmModel || "auto:smart"}` : "Claude · key set"} />
         <SettingRow onClick={() => setPage("connections")} icon={<Plug className="h-4 w-4" />} label="Connections" hint={connected ? `${connected} connected` : "GitHub, Canvas, Calendar, Gmail"} />
         <SettingRow onClick={() => setPage("data")} icon={<Database className="h-4 w-4" />} label="Data" hint="Export, replay welcome, erase" />
       </section>
@@ -346,18 +348,10 @@ function NotificationsPage({ onBack }: { onBack: () => void }) {
 }
 
 function AiPage({ onBack }: { onBack: () => void }) {
-  const { state, set } = useSetters();
-  const builtIn = !state.apiKey && !!import.meta.env.VITE_ANTHROPIC_API_KEY;
   return (
-    <SubPage title="AI & keys" lede="Chat and your daily briefing run on Claude with your own key." onBack={onBack}>
+    <SubPage title="AI & keys" lede="Chat and your daily briefing run on Claude, or free models through your FreeLLMAPI router." onBack={onBack}>
       <Group>
-        <Field label="Anthropic API key" hint={builtIn ? "Built-in key active. Paste your own to override." : "Stored only on this device."}>
-          <input className={inputClass} type="password" autoComplete="off" placeholder="sk-ant-…" value={state.apiKey} onChange={(e) => set({ apiKey: e.target.value })} />
-        </Field>
-        <div className="space-y-1.5">
-          <span className="text-sm font-medium">Model</span>
-          <Segmented label="Model" value={state.model as (typeof modelOptions)[number]["id"]} options={modelOptions} onChange={(m) => set({ model: m })} />
-        </div>
+        <AiSetup />
       </Group>
     </SubPage>
   );
@@ -371,7 +365,7 @@ function DataPage({ onBack }: { onBack: () => void }) {
 
   async function copy() {
     // API keys and tokens stay out of the export
-    const { apiKey: _k, integrations, ...rest } = state;
+    const { apiKey: _k, llmKey: _l, integrations, ...rest } = state;
     const { githubToken: _g, gmailToken: _m, ...safeIntegrations } = integrations;
     await navigator.clipboard.writeText(JSON.stringify({ ...rest, integrations: safeIntegrations }, null, 2));
     setCopied(true);

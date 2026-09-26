@@ -147,6 +147,7 @@
   html,
   body {
     overscroll-behavior: none;
+    overflow-x: clip; /* one unbreakable string must never widen the whole app */
   }
 
   button,

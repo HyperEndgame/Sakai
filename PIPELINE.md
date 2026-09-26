@@ -414,3 +414,9 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 - Code: `src/Calendar.tsx` (`MonthCalendar`, `dayKey`), `Tasks.tsx` day section; `App.tsx` nonce; `useVoice.ts` native/web split; `MainActivity.edgeToEdge()` sets transparent bars, injects `--sat/--sab` (re-injected onPageLoaded), pads WebView parent by IME inset; `body` padding-top + fixed `body::before` status strip; `min-h-screen` → `100dvh - --sat`; `setBars` = icon contrast only.
 - Debug: WebView ignores its own padding → keyboard covered input; pad parent instead.
 - Haiku review: no breaking issues.
+
+## v0.8.7 (2026-09-26) — FreeLLMAPI provider
+- Plan: provider switch in state; keep all AI code in Anthropic Messages shape and translate at the edge for FreeLLMAPI (desktop build = OpenAI surface only; `/v1/messages` 404). Native HTTP on Android for LAN http. Model default = GPT-OSS 120B (tool calling + largest budget share in user's pool).
+- Code: `ai.ts` `aiReady/aiMissing`, `toOpenAI/fromOpenAI`, `callRouter`, `listFreeModels`, `pickFreeModel`, DEV self-check (run via esbuild+node: passes); `AiSetup.tsx` shared by Settings + Onboarding; `gmail.ts` → `callClaude`; manifest `usesCleartextTraffic`.
+- Debug: first build targeted `/v1/messages` → 404 from desktop router → switched to chat/completions. Chat composer sticky offset/min-h now include `--sab/--sat`; `overflow-x: clip` on html/body + wrapping in chat bubbles.
+- Haiku review: no breaking issues.
