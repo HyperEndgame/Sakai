@@ -27,10 +27,9 @@ export function useApplyTheme(theme: Theme): "light" | "dark" {
     root.style.colorScheme = effective;
   }, [effective]);
 
-  // bars can't crossfade, so repaint them once the page fade (fadeTheme) is done
+  // bars tween natively over the same 320 ms as the page crossfade (fadeTheme)
   useEffect(() => {
-    const t = setTimeout(() => syncSystemBars(effective), document.documentElement.classList.contains("theme-swap") ? 320 : 0);
-    return () => clearTimeout(t);
+    syncSystemBars(effective, document.documentElement.classList.contains("theme-swap") ? 320 : 0);
   }, [effective]);
 
   return effective;

@@ -10,7 +10,12 @@ export function useVoice(onText: (t: string) => void) {
   onTextRef.current = onText;
 
   // stop the mic when the screen goes away (e.g. switching tabs mid-dictation)
-  useEffect(() => () => recRef.current?.abort?.(), []);
+  useEffect(
+    () => () => {
+      recRef.current?.abort?.();
+    },
+    [],
+  );
 
   function toggle() {
     const SR = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;

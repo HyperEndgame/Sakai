@@ -404,3 +404,7 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 - `main.tsx`: root `ErrorBoundary` (reload on "Back to Home"); boundary shows `lastError()` stack.
 - `MainActivity`: default uncaught-exception handler saves stack to prefs `last_crash`; `DashboardBridge.lastCrash()` returns+clears; `Crash.tsx` pulls it on boot via `notify.nativeCrash()`.
 - Tab-switch blank still unreproduced on API 36 emulator (-gpu host, dark/light, fresh onboarding w/ key + notifications). Suspect WebView GPU/renderer on device → need `adb logcat` from the Nothing 3a.
+
+## v0.8.5 (2026-09-26) — tab crash root cause (small; no haiku)
+- Phone crash screen: `TypeError: n is not a function` in React `safelyCallDestroy`. Cause: `useEffect(() => window.scrollTo(0,0))` returns a Promise on new WebView (Chrome scroll-promise). Rule: never expression-bodied effects.
+- `setBars(color, light, duration)`: native `ValueAnimator.ofArgb` tween; `useApplyTheme` passes 320 when `.theme-swap` is set.

@@ -25,7 +25,10 @@ type Tab = (typeof tabs)[number]["key"];
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("Home");
-  useEffect(() => window.scrollTo(0, 0), [tab]);
+  // braces matter: newer WebViews return a Promise from scrollTo, which React would call as a cleanup
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tab]);
   useBack(tab !== "Home", () => setTab("Home"));
   const { state, dispatch } = useStore();
   const effectiveTheme = useApplyTheme(state.theme);

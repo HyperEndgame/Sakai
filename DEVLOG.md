@@ -2,6 +2,10 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-26 · v0.8.5 — Tab-switch crash fixed
+- **Root cause** (from the new crash screen on the phone): `useEffect(() => window.scrollTo(0, 0))`. Newer Android WebViews return a Promise from `scrollTo`; React treated it as the effect's cleanup and crashed calling it on the next tab switch ("n is not a function"). The emulator's older WebView returns undefined, so it never reproduced there. Fixed with a block body; same guard applied to the voice cleanup.
+- **Status/nav bars** now tween natively (320 ms `ValueAnimator`) in step with the page crossfade instead of snapping a beat later.
+
 ## 2026-09-26 · v0.8.4 — Crash diagnostics, simpler icon
 - App icon is just the ring and dot (no constellation lines), matching the in-app header mark.
 - Phone still blanks on tab switch; **not reproducible** on the Android 16 emulator (light, dark, fresh install + key + notifications, host GPU). Added diagnostics so the phone can tell us why:

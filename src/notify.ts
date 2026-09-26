@@ -6,7 +6,7 @@ import type { State } from "./store";
 // the app being killed, unlike a plain LocalNotifications entry.
 interface DashboardBridgePlugin {
   save(opts: { title: string; body: string }): Promise<void>;
-  setBars(opts: { color: string; light: boolean }): Promise<void>;
+  setBars(opts: { color: string; light: boolean; duration: number }): Promise<void>;
   lastCrash(): Promise<{ crash: string }>;
 }
 const DashboardBridge = registerPlugin<DashboardBridgePlugin>("DashboardBridge");
@@ -18,7 +18,7 @@ export async function nativeCrash(): Promise<string> {
 }
 
 // Paints Android's status + navigation bars to match the page background (oklch → hex via a 1px canvas).
-export function syncSystemBars(effective: "light" | "dark") {
+export function syncSystemBars(effective: "light" | "dark", duration = 0) {
   if (!Capacitor.isNativePlatform()) return;
   const ctx = document.createElement("canvas").getContext("2d");
   if (!ctx) return;
@@ -26,7 +26,7 @@ export function syncSystemBars(effective: "light" | "dark") {
   ctx.fillRect(0, 0, 1, 1);
   const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
   const color = "#" + [r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("");
-  DashboardBridge.setBars({ color, light: effective === "light" }).catch(() => {});
+  DashboardBridge.setBars({ color, light: effective === "light", duration }).catch(() => {});
 }
 
 export async function updateDashboardNotification(state: State) {
