@@ -2,6 +2,13 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-26 · v0.8.4 — Crash diagnostics, simpler icon
+- App icon is just the ring and dot (no constellation lines), matching the in-app header mark.
+- Phone still blanks on tab switch; **not reproducible** on the Android 16 emulator (light, dark, fresh install + key + notifications, host GPU). Added diagnostics so the phone can tell us why:
+  - whole-app error screen: any JS crash now shows the error text instead of a blank page
+  - native (Java) crashes are saved and shown on next launch
+- Next: USB logcat from the phone if it still blanks with no error shown (that means the WebView/GPU process died, which JS can't catch).
+
 ## 2026-09-25 · v0.8.3 — Icon, crash guards, smooth theme
 - **App icon** is now the Sakai mark (ring, dot, linked stars) on cream, as an adaptive icon with a themed-icon (monochrome) layer. The Capacitor splash logo is gone; launch shows the Sakai mark.
 - **No native dropdowns in onboarding/settings**: goal area is a chip row, wake/sleep times are −/+ steppers (30 min), model is a segmented control.

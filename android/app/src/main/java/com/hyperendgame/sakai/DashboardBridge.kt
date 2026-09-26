@@ -40,6 +40,15 @@ class DashboardBridge : Plugin() {
         call.resolve()
     }
 
+    // Returns and clears the stack trace MainActivity saved from the last native crash.
+    @PluginMethod
+    fun lastCrash(call: PluginCall) {
+        val prefs = context.getSharedPreferences("sakai", Context.MODE_PRIVATE)
+        val crash = prefs.getString("last_crash", "") ?: ""
+        prefs.edit().remove("last_crash").apply()
+        call.resolve(com.getcapacitor.JSObject().put("crash", crash))
+    }
+
     // Status/nav bars follow the web theme. ponytail: relies on the edge-to-edge opt-out
     // (values-v35/styles.xml); targeting API 36 means switching to inset padding instead.
     @PluginMethod

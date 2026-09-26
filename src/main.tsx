@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./Crash";
+import { ErrorBoundary } from "./Crash";
 import App from "./App";
 import { StoreProvider } from "./store";
 import "./styles.css";
@@ -8,7 +8,9 @@ import "./styles.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <StoreProvider>
-      <App />
+      <ErrorBoundary onHome={() => location.reload()}>
+        <App />
+      </ErrorBoundary>
     </StoreProvider>
   </React.StrictMode>,
 );

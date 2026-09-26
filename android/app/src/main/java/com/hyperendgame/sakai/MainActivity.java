@@ -12,6 +12,13 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(DashboardBridge.class);
+        // keep the last native crash so the web layer can show it on next launch (DashboardBridge.lastCrash)
+        Thread.UncaughtExceptionHandler prev = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            getSharedPreferences("sakai", MODE_PRIVATE).edit()
+                .putString("last_crash", android.util.Log.getStackTraceString(e)).commit();
+            if (prev != null) prev.uncaughtException(t, e);
+        });
         super.onCreate(savedInstanceState);
         // no Android stretch/glow when scrolling past the ends
         getBridge().getWebView().setOverScrollMode(View.OVER_SCROLL_NEVER);

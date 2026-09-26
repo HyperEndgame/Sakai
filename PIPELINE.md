@@ -398,3 +398,9 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 - `theme.ts`: `useApplyTheme` derives `effective` (no effect-set state), class flip in `useLayoutEffect`; `fadeTheme()` wraps changes in `startViewTransition` + `flushSync`, `.theme-swap` kills per-element transitions; bars sync after 320 ms.
 - Crash (user report: voice + tab switch; not reproducible on API 36 emulator): `src/Crash.tsx` ErrorBoundary per tab + global error log (`sakai-last-error`, shown in Settings → Data); `useVoice` aborts on unmount, try/catch start; `MainActivity` WebViewListener recreates on render-process-gone; `DashboardService.onStartCommand` calls `startForeground`; `DashboardBridge.save` catches blocked FGS start.
 - Open: if the phone still crashes, read Settings → Data → Last error, or `adb logcat` over USB.
+
+## v0.8.4 (2026-09-26) — diagnostics (small; no haiku)
+- Icon vectors/PNGs reduced to ring + dot.
+- `main.tsx`: root `ErrorBoundary` (reload on "Back to Home"); boundary shows `lastError()` stack.
+- `MainActivity`: default uncaught-exception handler saves stack to prefs `last_crash`; `DashboardBridge.lastCrash()` returns+clears; `Crash.tsx` pulls it on boot via `notify.nativeCrash()`.
+- Tab-switch blank still unreproduced on API 36 emulator (-gpu host, dark/light, fresh onboarding w/ key + notifications). Suspect WebView GPU/renderer on device → need `adb logcat` from the Nothing 3a.

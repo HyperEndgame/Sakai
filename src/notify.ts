@@ -7,8 +7,15 @@ import type { State } from "./store";
 interface DashboardBridgePlugin {
   save(opts: { title: string; body: string }): Promise<void>;
   setBars(opts: { color: string; light: boolean }): Promise<void>;
+  lastCrash(): Promise<{ crash: string }>;
 }
 const DashboardBridge = registerPlugin<DashboardBridgePlugin>("DashboardBridge");
+
+// Pulls a native crash saved by MainActivity into the web error log (Settings → Data).
+export async function nativeCrash(): Promise<string> {
+  if (!Capacitor.isNativePlatform()) return "";
+  return (await DashboardBridge.lastCrash().catch(() => ({ crash: "" }))).crash;
+}
 
 // Paints Android's status + navigation bars to match the page background (oklch → hex via a 1px canvas).
 export function syncSystemBars(effective: "light" | "dark") {
