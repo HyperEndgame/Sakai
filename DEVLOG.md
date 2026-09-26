@@ -2,6 +2,14 @@
 
 Newest first. One entry per iteration: what shipped, how it was verified, what's next.
 
+## 2026-09-26 · v0.8.6 — Calendar, voice, edge-to-edge
+- **Tasks calendar**: month grid at the top of Tasks. Dots mark days with open tasks (incl. Canvas/Google Calendar imports); tap a day to see what's due and add a task for that date.
+- **Insights**: daily brief removed (news stays on Home).
+- **Re-tap a tab to reset it**: tapping Settings while on a settings page returns to the main Settings list (works for every tab).
+- **Voice typing** now uses Android's native speech recognizer via a plugin. Root cause: Android 11+ hides the speech service from apps that don't declare it (`<queries>` for `RecognitionService`), so the WebView's built-in voice couldn't find it on the phone.
+- **Status/nav bars**: app is now edge-to-edge; the bars are transparent and the page paints behind them, so the theme fade covers them in the same frame (measured identical mid-fade). Keyboard still pushes content up (WebView parent padded by the IME inset).
+- Verified on the Android 16 emulator; review agent: no breaking issues.
+
 ## 2026-09-26 · v0.8.5 — Tab-switch crash fixed
 - **Root cause** (from the new crash screen on the phone): `useEffect(() => window.scrollTo(0, 0))`. Newer Android WebViews return a Promise from `scrollTo`; React treated it as the effect's cleanup and crashed calling it on the next tab switch ("n is not a function"). The emulator's older WebView returns undefined, so it never reproduced there. Fixed with a block body; same guard applied to the voice cleanup.
 - **Status/nav bars** now tween natively (320 ms `ValueAnimator`) in step with the page crossfade instead of snapping a beat later.

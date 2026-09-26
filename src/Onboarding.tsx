@@ -60,7 +60,7 @@ export function Onboarding() {
   useBack(i > 0, () => setI(i - 1));
 
   return (
-    <div className="flex min-h-screen flex-col px-6 pt-6">
+    <div className="flex min-h-[calc(100dvh-var(--sat,0px))] flex-col px-6 pt-6">
       <div className="flex h-10 items-center gap-3">
         {i > 0 && step !== "done" ? (
           <button
@@ -213,7 +213,7 @@ export function Onboarding() {
         )}
       </main>
 
-      <div className="sticky bottom-0 -mx-6 space-y-1 border-t border-border bg-background px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+      <div className="sticky bottom-0 -mx-6 space-y-1 border-t border-border bg-background px-6 pb-[calc(1rem+var(--sab,0px))] pt-4">
         <button
           onClick={next}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 active:opacity-80"

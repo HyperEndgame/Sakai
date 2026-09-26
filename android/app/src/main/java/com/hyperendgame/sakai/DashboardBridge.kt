@@ -1,9 +1,7 @@
 package com.hyperendgame.sakai
 
-import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import androidx.core.view.WindowCompat
 import com.getcapacitor.Plugin
@@ -50,30 +48,13 @@ class DashboardBridge : Plugin() {
         call.resolve(com.getcapacitor.JSObject().put("crash", crash))
     }
 
-    // Status/nav bars follow the web theme. ponytail: relies on the edge-to-edge opt-out
-    // (values-v35/styles.xml); targeting API 36 means switching to inset padding instead.
+    // Bars are transparent (edge-to-edge, MainActivity); the page paints behind them, so only the
+    // icon contrast needs to follow the theme.
     @PluginMethod
     fun setBars(call: PluginCall) {
-        val color = try { Color.parseColor(call.getString("color")) } catch (_: Exception) { call.reject("bad color"); return }
         val light = call.getBoolean("light", true) ?: true
-        val duration = (call.getInt("duration", 0) ?: 0).toLong()
         activity.runOnUiThread {
             val w = activity.window
-            @Suppress("DEPRECATION")
-            val from = w.statusBarColor
-            // same tween length as the web crossfade so bars and page change together
-            ValueAnimator.ofArgb(from, color).apply {
-                this.duration = duration
-                addUpdateListener {
-                    val c = it.animatedValue as Int
-                    @Suppress("DEPRECATION")
-                    w.statusBarColor = c
-                    @Suppress("DEPRECATION")
-                    w.navigationBarColor = c
-                    w.decorView.setBackgroundColor(c)
-                }
-                start()
-            }
             WindowCompat.getInsetsController(w, w.decorView).apply {
                 isAppearanceLightStatusBars = light
                 isAppearanceLightNavigationBars = light

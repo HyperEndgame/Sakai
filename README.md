@@ -13,7 +13,7 @@ Copy `.env.example` to `.env` and set `VITE_ANTHROPIC_API_KEY` (or paste a key i
 
 ## Android APK
 
-**Install on your phone:** download the latest `sakai-*.apk` from GitHub → Releases, open it, allow "Install unknown apps" for your browser when asked, then in the app go to Settings → AI & keys and paste your Anthropic API key.
+**Install on your phone:** download the latest `sakai-*.apk` from GitHub → Releases, open it, allow "Install unknown apps" for your browser when asked, then in the app go to Settings → AI & keys and paste your Anthropic API key. Voice input needs the Google app (speech recognition) enabled.
 
 To build a phone APK without baking in the `.env` key:
 

@@ -25,6 +25,7 @@ type Tab = (typeof tabs)[number]["key"];
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("Home");
+  const [nonce, setNonce] = useState(0); // re-tapping the current tab resets it (e.g. Settings subpage → index)
   // braces matter: newer WebViews return a Promise from scrollTo, which React would call as a cleanup
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -45,7 +46,7 @@ export default function App() {
 
   if (!state.onboarded) {
     return (
-      <div className="relative min-h-screen bg-background text-foreground">
+      <div className="relative min-h-[calc(100dvh-var(--sat,0px))] bg-background text-foreground">
         <Decorations key={state.assistant.accent} theme={effectiveTheme} decoration={state.decoration} />
         <div className="relative z-10 mx-auto w-full max-w-xl">
           <Onboarding />
@@ -55,9 +56,9 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
+    <div className="relative min-h-[calc(100dvh-var(--sat,0px))] bg-background text-foreground">
       <Decorations key={state.assistant.accent} theme={effectiveTheme} decoration={state.decoration} />
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-xl flex-col">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-var(--sat,0px))] w-full max-w-xl flex-col">
         <header className="flex items-center justify-between px-6 pt-6">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card">
@@ -75,7 +76,7 @@ export default function App() {
         </header>
 
         <main className="flex-1 px-6 pb-28 pt-6">
-          <ErrorBoundary key={tab} onHome={() => setTab("Home")}>
+          <ErrorBoundary key={`${tab}-${nonce}`} onHome={() => setTab("Home")}>
           {tab === "Home" && <Dashboard onOpenTasks={() => setTab("Tasks")} />}
           {tab === "Chat" && <Chat />}
           {tab === "Tasks" && <Tasks />}
@@ -91,7 +92,7 @@ export default function App() {
               return (
                 <button
                   key={key}
-                  onClick={() => setTab(key)}
+                  onClick={() => (key === tab ? (setNonce((n) => n + 1), window.scrollTo(0, 0)) : setTab(key))}
                   className={cn(
                     "flex flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium transition-colors",
                     active ? "text-primary" : "text-muted-foreground hover:text-foreground",
@@ -103,7 +104,7 @@ export default function App() {
               );
             })}
           </div>
-          <div className="h-[env(safe-area-inset-bottom)]" />
+          <div className="h-[var(--sab,0px)]" />
         </nav>
       </div>
     </div>

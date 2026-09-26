@@ -1,7 +1,7 @@
-import { Newspaper, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { Area } from "./store";
 import { useStore } from "./store";
-import { previewChipClass, samplePattern, sampleStories } from "./samples";
+import { previewChipClass, samplePattern } from "./samples";
 
 const areaLabel: Record<Area, string> = {
   school: "School",
@@ -21,9 +21,6 @@ export function Insights() {
   const today = new Date().toISOString().slice(0, 10);
   const thisMonth = today.slice(0, 7);
   const stale = state.briefing?.date !== today;
-  const realStories = state.briefing && !stale ? state.briefing.stories : undefined;
-  const hasStories = !!realStories?.length;
-  const stories = hasStories ? realStories! : sampleStories;
   const realPattern = state.briefing && !stale ? state.briefing.pattern : undefined;
   const hasPattern = !!realPattern;
   const pattern = hasPattern ? realPattern! : samplePattern;
@@ -33,25 +30,8 @@ export function Insights() {
       <header className="space-y-2">
         <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">This week</p>
         <h1 className="font-serif text-4xl leading-tight tracking-tight">Insights</h1>
-        <p className="text-sm text-muted-foreground">Patterns and news, curated for your goals.</p>
+        <p className="text-sm text-muted-foreground">How each part of your life is tracking.</p>
       </header>
-
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Newspaper className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold">Daily brief</h2>
-          {!hasStories && <span className={previewChipClass}>Preview</span>}
-        </div>
-        <div className="space-y-2">
-          {stories.map((s) => (
-            <article key={s.title} className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-[11px] uppercase tracking-wider text-primary">{s.category}</p>
-              <h3 className="mt-1 font-serif text-lg leading-snug">{s.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.summary}</p>
-            </article>
-          ))}
-        </div>
-      </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground">All life areas</h2>

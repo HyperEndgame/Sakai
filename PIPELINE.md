@@ -408,3 +408,9 @@ Everything else clean (load deep-merge, hook order, accent/layout-effect orderin
 ## v0.8.5 (2026-09-26) — tab crash root cause (small; no haiku)
 - Phone crash screen: `TypeError: n is not a function` in React `safelyCallDestroy`. Cause: `useEffect(() => window.scrollTo(0,0))` returns a Promise on new WebView (Chrome scroll-promise). Rule: never expression-bodied effects.
 - `setBars(color, light, duration)`: native `ValueAnimator.ofArgb` tween; `useApplyTheme` passes 320 when `.theme-swap` is set.
+
+## v0.8.6 (2026-09-26) — calendar, native voice, edge-to-edge
+- Plan: calendar = month grid over task due dates (imports already land as tasks) + per-day add; brief removed from Insights; nav re-tap bumps a nonce keyed onto the tab's ErrorBoundary; voice → `@capacitor-community/speech-recognition` (its manifest adds `<queries>` RecognitionService, the missing piece for WebView speech on Android 11+); bars → edge-to-edge so the page crossfade covers them.
+- Code: `src/Calendar.tsx` (`MonthCalendar`, `dayKey`), `Tasks.tsx` day section; `App.tsx` nonce; `useVoice.ts` native/web split; `MainActivity.edgeToEdge()` sets transparent bars, injects `--sat/--sab` (re-injected onPageLoaded), pads WebView parent by IME inset; `body` padding-top + fixed `body::before` status strip; `min-h-screen` → `100dvh - --sat`; `setBars` = icon contrast only.
+- Debug: WebView ignores its own padding → keyboard covered input; pad parent instead.
+- Haiku review: no breaking issues.

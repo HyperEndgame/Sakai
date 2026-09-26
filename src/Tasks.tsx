@@ -1,7 +1,11 @@
-import { Info, X } from "lucide-react";
+import { useState } from "react";
+import { Info, Plus, X } from "lucide-react";
 import type { Quadrant, Task } from "./store";
-import { useStore } from "./store";
+import { autoQuadrant, uid, useStore } from "./store";
 import { formatDue } from "./date";
+import { MonthCalendar } from "./Calendar";
+import { inputClass } from "./fields";
+import { cn } from "./cn";
 import { previewChipClass, sampleTasks } from "./samples";
 
 const quadrantMeta: Record<Quadrant, { label: string; hint: string; dot: string }> = {
@@ -17,6 +21,18 @@ export function Tasks() {
   const hasTasks = state.tasks.length > 0;
   const open = hasTasks ? state.tasks.filter((t) => !t.done) : sampleTasks;
   const done = hasTasks ? state.tasks.filter((t) => t.done) : [];
+  const [month, setMonth] = useState(() => new Date());
+  const [day, setDay] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const dayTasks = day ? state.tasks.filter((t) => !t.done && t.due?.slice(0, 10) === day) : [];
+
+  function addOnDay() {
+    if (!title.trim() || !day) return;
+    const area = state.profile.areas[0] ?? "personal";
+    const task: Task = { id: uid(), title: title.trim(), area, due: day, quadrant: autoQuadrant(day, area), done: false, createdAt: new Date().toISOString() };
+    dispatch({ type: "add-task", task });
+    setTitle("");
+  }
 
   return (
     <div className="space-y-8">
@@ -28,6 +44,43 @@ export function Tasks() {
         </div>
         <p className="text-sm text-muted-foreground">{state.assistant.name || "Sakai"} sorts everything by urgency and importance, and explains why.</p>
       </header>
+
+      <div className="space-y-3">
+        <MonthCalendar month={month} onMonth={setMonth} selected={day} onSelect={setDay} tasks={state.tasks} />
+        {day && (
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold">Due {formatDue(day)}</h2>
+            {dayTasks.map((t) => (
+              <TaskCard
+                key={t.id}
+                task={t}
+                onDone={() => dispatch({ type: "update-task", id: t.id, patch: { done: true } })}
+                onDelete={() => dispatch({ type: "delete-task", id: t.id })}
+              />
+            ))}
+            {!dayTasks.length && <p className="text-sm text-muted-foreground">Nothing due. Add something below.</p>}
+            <div className="flex gap-2">
+              <input
+                className={cn(inputClass, "min-w-0 flex-1")}
+                placeholder={`Add a task for ${formatDue(day)}`}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addOnDay())}
+                aria-label="New task for this day"
+              />
+              <button
+                type="button"
+                onClick={addOnDay}
+                disabled={!title.trim()}
+                aria-label="Add task"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
 
       {order.map((q) => {
         const meta = quadrantMeta[q];
